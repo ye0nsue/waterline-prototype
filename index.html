@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WATERLINE MVP 프로토타입</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  --bg:#F4F5F1; --card:#FCFCFA; --ink:#16202B; --muted:#56616D; --line:#D9DDD6;
+  --blue:#1F5FBF; --blue-soft:#E3ECF8; --amber:#8A6300; --amber-soft:#FBF1D6;
+  --orange:#B8471A; --orange-soft:#FBE6DB; --green:#1D6B4F; --green-soft:#DDEFE6;
+  --water:rgba(31,95,191,.28);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Noto Sans KR',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--card)}
+.brand{display:flex;align-items:baseline;gap:12px}
+.brand b{font-size:22px;font-weight:900;letter-spacing:.04em;color:var(--blue)}
+.brand span{color:var(--muted);font-size:14px}
+.persona{font-size:13px;color:var(--muted);text-align:right}
+.stepper{display:flex;gap:8px;padding:14px 24px;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto}
+.step{flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.step small{display:block;color:var(--muted);font-size:12px}
+.step b{font-size:14px}
+.step.on{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue) inset;background:var(--blue-soft)}
+.step .ph{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--blue)}
+.narr{margin:16px 24px 0;padding:14px 18px;border-radius:12px;background:var(--ink);color:#F4F5F1;display:flex;gap:16px;align-items:center}
+.narr .tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:#F4F5F1;color:var(--ink);white-space:nowrap}
+.narr p{margin:0;font-size:15px}
+.ctrl{margin-left:auto;display:flex;gap:8px}
+.btn{font:inherit;font-weight:700;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;background:var(--blue);color:#fff}
+.btn.ghost{background:transparent;border:1px solid #8A949E;color:#F4F5F1}
+.btn.lite{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.warn{background:var(--orange)}
+main{display:grid;grid-template-columns:300px 1fr 340px;gap:16px;padding:16px 24px 32px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h3{margin:0 0 4px;font-size:15px}
+.panel .sub{margin:0 0 12px;font-size:12px;color:var(--muted)}
+.col{display:flex;flex-direction:column;gap:16px}
+/* watch */
+.watch{width:220px;height:250px;margin:6px auto 4px;border-radius:52px;background:#1B232C;padding:14px;box-shadow:0 0 0 6px #2C3640}
+.face{height:100%;border-radius:40px;background:#0E141A;color:#EEF2F5;padding:16px 14px;display:flex;flex-direction:column;justify-content:space-between;text-align:center;transition:background .3s}
+.face .lvl{font-size:12px;font-weight:700;letter-spacing:.06em;align-self:center;padding:2px 10px;border-radius:99px}
+.face .msg{font-size:17px;font-weight:700;line-height:1.35}
+.face .hint{font-size:12px;color:#B9C3CC}
+.face.l1{background:#2A2208}.face.l1 .lvl{background:#F2C84B;color:#2A2208}
+.face.l2{background:#0F2340}.face.l2 .lvl{background:#7FB0F5;color:#0F2340}
+.face.l3{background:#3A170A}.face.l3 .lvl{background:#F59A6E;color:#3A170A}
+.face.l0 .lvl{background:#3B4652;color:#EEF2F5}
+.face.l4 .lvl,.face.l5 .lvl{background:#8FD3B5;color:#0E2A1F}
+.wbtns{display:flex;gap:6px;justify-content:center}
+.wbtns button{font:inherit;font-size:12px;font-weight:700;border:0;border-radius:99px;padding:6px 10px;cursor:pointer}
+.vib{animation:vib .12s linear 0s 6}
+@keyframes vib{0%{transform:translateX(0)}50%{transform:translateX(2px)}100%{transform:translateX(-2px)}}
+.voice{font-size:12px;color:var(--muted);text-align:center;min-height:18px}
+/* sensors */
+.sensor{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fff}
+.sensor b{font-size:14px}.sensor small{display:block;color:var(--muted);font-size:12px}
+.val{font-weight:900;font-size:18px}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--green-soft);color:var(--green)}
+.badge.warn{background:var(--orange-soft);color:var(--orange)}
+.badge.amb{background:var(--amber-soft);color:var(--amber)}
+input[type=range]{width:100%}
+/* center */
+.tabs{display:flex;gap:6px;margin-bottom:12px}
+.tab{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;cursor:pointer}
+.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.mapwrap{position:relative;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.fact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;font-size:12px}
+.fact b{display:block;font-size:14px}
+/* helper phone */
+.phone{border:10px solid #1B232C;border-radius:30px;background:#fff;min-height:620px;overflow:hidden;display:flex;flex-direction:column}
+.ph-top{background:var(--ink);color:#fff;padding:12px 14px}
+.ph-top small{color:#B9C3CC;font-size:11px}
+.ph-top b{display:block;font-size:15px}
+.ph-body{padding:12px;display:flex;flex-direction:column;gap:10px;font-size:13px}
+.alert{border-radius:10px;padding:10px 12px;font-weight:700}
+.alert.idle{background:#EEF0EC;color:var(--muted);font-weight:500}
+.alert.amb{background:var(--amber-soft);color:var(--amber)}
+.alert.blue{background:var(--blue-soft);color:var(--blue)}
+.alert.org{background:var(--orange-soft);color:var(--orange)}
+.alert.grn{background:var(--green-soft);color:var(--green)}
+.eta{font-size:34px;font-weight:900;line-height:1}
+.box{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.box h4{margin:0 0 6px;font-size:13px}
+.box ul{margin:0;padding-left:18px}
+.box li{margin:2px 0}
+.check li{list-style:none;margin-left:-18px}
+.hide{display:none!important}
+.dash{grid-column:1/-1}
+.dtable{width:100%;border-collapse:collapse;font-size:13px}
+.dtable th,.dtable td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.dtable th{color:var(--muted);font-weight:500}
+footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
+@media (max-width:1180px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>WATERLINE</b><span>MVP 프로토타입 · 반지하 휠체어 사용자 집중호우 대응</span></div>
+  <div class="persona">가상 퍼소나 · 정민수(52) · 경수 손상 사지마비 · 전동휠체어<br>서울 관악구 다세대주택 반지하 · 활동지원사 퇴근 후 혼자 있는 밤</div>
+</header>
+
+<div class="stepper" id="stepper"></div>
+
+<div class="narr">
+  <span class="tag" id="ntag">예방</span>
+  <p id="ntext"></p>
+  <div class="ctrl">
+    <button class="btn ghost" id="prev">이전</button>
+    <button class="btn" id="next">다음 단계</button>
+  </div>
+</div>
+
+<main>
+  <!-- LEFT: user devices -->
+  <div class="col">
+    <div class="panel">
+      <h3>① 사용자 워치</h3>
+      <p class="sub">음성·진동 중심 · 손을 쓰지 않아도 됨 · 자는 동안 착용</p>
+      <div class="watch"><div class="face l0" id="face">
+        <span class="lvl" id="wlvl">평상시</span>
+        <div class="msg" id="wmsg"></div>
+        <div>
+          <div class="wbtns" id="wbtns"></div>
+          <div class="hint" id="whint"></div>
+        </div>
+      </div></div>
+      <div class="voice" id="voice"></div>
+    </div>
+    <div class="panel">
+      <h3>② 센서</h3>
+      <p class="sub">바닥 센서는 스캔으로 찾은 역류 지점(싱크대) 옆에 설치</p>
+      <div class="sensor"><div><b>바닥 수위 센서</b><small>주방 싱크대 하수구 옆</small></div><div style="text-align:right"><div class="val" id="sFloor">0 cm</div><span class="badge" id="bFloor">정상</span></div></div>
+      <div class="sensor"><div><b>휠체어 센서 모듈</b><small>바퀴 높이 수위 · 위치 · 분리 감지</small></div><div style="text-align:right"><div class="val" id="sChair">0 cm</div><span class="badge" id="bChair">탑승 중</span></div></div>
+      <label style="font-size:12px;color:var(--muted)">시연용 수위 조절 (집 안 물 높이)</label>
+      <input type="range" id="water" min="0" max="80" value="0">
+      <button class="btn warn" id="inflow" style="width:100%;margin-top:8px">하수관 역류 발생 (물 유입 시연)</button>
+    </div>
+  </div>
+
+  <!-- CENTER: escape map -->
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <div><h3>③ 반지하 탈출 지도 (스캔 데이터)</h3>
+      <p class="sub">지자체 반지하 상태 조사 방문 시 동의 후 LiDAR·광학 스캔 · 사람은 지우고 공간 구조만 저장</p></div>
+      <div class="tabs"><button class="tab on" data-v="plan">평면 · 탈출 지도</button><button class="tab" data-v="sect">단면 · 침수 시뮬레이션</button></div>
+    </div>
+    <div class="mapwrap" id="vplan">
+      <svg viewBox="0 0 760 440" width="100%" role="img" aria-label="반지하 평면 탈출 지도">
+        <defs>
+          <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#C9CEC6" stroke-width="2"/></pattern>
+          <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#1F5FBF"/></marker>
+          <marker id="ao" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#B8471A"/></marker>
+        </defs>
+        <rect x="0" y="0" width="760" height="440" fill="#FBFBF9"/>
+        <!-- outer walls -->
+        <rect x="60" y="60" width="560" height="320" fill="#fff" stroke="#16202B" stroke-width="6"/>
+        <!-- water overlay -->
+        <rect id="waterPlan" x="63" y="63" width="554" height="314" fill="var(--water)" opacity="0"/>
+        <!-- rooms -->
+        <line x1="330" y1="60" x2="330" y2="380" stroke="#16202B" stroke-width="4"/>
+        <line x1="470" y1="240" x2="620" y2="240" stroke="#16202B" stroke-width="4"/>
+        <line x1="470" y1="240" x2="470" y2="380" stroke="#16202B" stroke-width="4"/>
+        <rect x="330" y="200" width="6" height="60" fill="#fff"/>
+        <text x="80" y="92" font-size="15" font-weight="700" fill="#16202B">방</text>
+        <text x="350" y="92" font-size="15" font-weight="700" fill="#16202B">거실 · 주방</text>
+        <text x="490" y="272" font-size="15" font-weight="700" fill="#16202B">화장실</text>
+        <!-- bed + user -->
+        <rect x="90" y="250" width="200" height="110" rx="8" fill="#EEF0EC" stroke="#9AA3AC"/>
+        <text x="110" y="345" font-size="12" fill="#56616D">침대</text>
+        <g id="userPin"><circle cx="190" cy="290" r="16" fill="#1F5FBF"/><text x="190" y="295" font-size="13" text-anchor="middle" fill="#fff" font-weight="700">나</text></g>
+        <g id="chairPin"><rect x="215" y="200" width="44" height="34" rx="6" fill="#fff" stroke="#16202B" stroke-width="2"/><text x="237" y="222" font-size="11" text-anchor="middle" font-weight="700">휠체어</text></g>
+        <!-- sink + sensor -->
+        <rect x="500" y="66" width="110" height="40" fill="#EEF0EC" stroke="#9AA3AC"/>
+        <text x="555" y="91" font-size="12" text-anchor="middle" fill="#56616D">싱크대</text>
+        <g id="sinkSensor"><circle cx="555" cy="128" r="11" fill="#1D6B4F"/><text x="555" y="132" font-size="10" text-anchor="middle" fill="#fff" font-weight="700">S</text></g>
+        <text x="575" y="132" font-size="12" fill="#1D6B4F" font-weight="700" id="sinkLbl">역류 지점 · 센서</text>
+        <!-- toilet drain -->
+        <circle cx="545" cy="320" r="9" fill="#fff" stroke="#9AA3AC" stroke-width="2"/><text x="545" y="350" font-size="11" text-anchor="middle" fill="#56616D">바닥 배수구</text>
+        <!-- entrance stairs -->
+        <rect x="620" y="150" width="120" height="70" fill="url(#hatch)" stroke="#16202B"/>
+        <text x="680" y="140" font-size="12" text-anchor="middle" fill="#16202B" font-weight="700">현관 계단 5단 ↑ 지상</text>
+        <!-- door swing (opens inward) -->
+        <line x1="620" y1="150" x2="620" y2="220" stroke="#fff" stroke-width="8"/>
+        <path d="M620,150 A70,70 0 0,0 552,190" fill="none" stroke="#B8471A" stroke-width="2" stroke-dasharray="5 4"/>
+        <line x1="620" y1="150" x2="560" y2="186" stroke="#B8471A" stroke-width="4"/>
+        <text x="600" y="246" font-size="12" text-anchor="end" fill="#B8471A" font-weight="700">현관문: 안쪽으로 열림</text>
+        <text x="600" y="262" font-size="11" text-anchor="end" fill="#B8471A">→ 수압이 걸리면 열기 어려움</text>
+        <!-- windows -->
+        <line x1="60" y1="140" x2="60" y2="210" stroke="#1F5FBF" stroke-width="10"/>
+        <text x="36" y="132" font-size="12" fill="#1F5FBF" font-weight="700" transform="rotate(-90 36 175)">창문 A</text>
+        <line x1="130" y1="380" x2="230" y2="380" stroke="#1F5FBF" stroke-width="10"/>
+        <text x="180" y="408" font-size="12" text-anchor="middle" fill="#1F5FBF" font-weight="700">창문 B · 폭 90cm · 방범창 없음</text>
+        <!-- entry route -->
+        <g id="route" opacity="0">
+          <path d="M180,432 L180,392 L185,312" fill="none" stroke="#1F5FBF" stroke-width="4" stroke-dasharray="10 6" marker-end="url(#ar)"/>
+          <rect x="250" y="404" width="230" height="26" rx="13" fill="#1F5FBF"/>
+          <text x="365" y="422" font-size="13" text-anchor="middle" fill="#fff" font-weight="700">추천 진입로: 창문 B → 침대까지 2m</text>
+        </g>
+        <!-- inflow arrows -->
+        <g id="inflowArr" opacity="0">
+          <path d="M555,140 L470,190" stroke="#B8471A" stroke-width="4" marker-end="url(#ao)"/>
+          <path d="M700,226 L640,250" stroke="#B8471A" stroke-width="4" marker-end="url(#ao)"/>
+        </g>
+      </svg>
+    </div>
+    <div class="mapwrap hide" id="vsect">
+      <svg viewBox="0 0 760 440" width="100%" role="img" aria-label="반지하 단면 침수 시뮬레이션">
+        <rect x="0" y="0" width="760" height="440" fill="#FBFBF9"/>
+        <rect x="0" y="0" width="760" height="150" fill="#EEF2F7"/>
+        <text x="24" y="40" font-size="14" font-weight="700" fill="#16202B">지상 (도로)</text>
+        <line x1="0" y1="150" x2="760" y2="150" stroke="#16202B" stroke-width="4"/>
+        <rect x="80" y="150" width="600" height="250" fill="#fff" stroke="#16202B" stroke-width="5"/>
+        <!-- floor at y=400 ; 1cm = 2.5px -->
+        <rect id="waterSect" x="83" y="400" width="594" height="0" fill="var(--water)"/>
+        <!-- stairs -->
+        <path d="M680,150 L640,150 L640,180 L620,180 L620,210 L600,210 L600,240" fill="none" stroke="#16202B" stroke-width="3"/>
+        <text x="700" y="200" font-size="12" fill="#16202B">현관 계단</text>
+        <!-- bed -->
+        <rect x="130" y="340" width="190" height="60" fill="#EEF0EC" stroke="#9AA3AC"/>
+        <text x="225" y="376" font-size="12" text-anchor="middle" fill="#56616D">침대 높이 60cm</text>
+        <!-- wheelchair -->
+        <g>
+          <circle cx="420" cy="370" r="30" fill="none" stroke="#16202B" stroke-width="5"/>
+          <circle cx="480" cy="388" r="12" fill="none" stroke="#16202B" stroke-width="4"/>
+          <rect x="400" y="315" width="80" height="14" fill="#16202B"/>
+          <rect x="470" y="270" width="10" height="55" fill="#16202B"/>
+        </g>
+        <!-- waterline mark: wheel hub ~ 30cm => y=400-75=325 -->
+        <line x1="83" y1="325" x2="677" y2="325" stroke="#B8471A" stroke-width="2" stroke-dasharray="8 6"/>
+        <text x="96" y="318" font-size="13" fill="#B8471A" font-weight="700">WATERLINE · 바퀴가 잠기는 선 (약 30cm)</text>
+        <line x1="83" y1="250" x2="677" y2="250" stroke="#56616D" stroke-width="1" stroke-dasharray="4 6"/>
+        <text x="96" y="244" font-size="12" fill="#56616D">무릎 높이 (약 60cm, 신림동 사례)</text>
+        <text id="sectLbl" x="660" y="430" font-size="14" text-anchor="end" fill="#16202B" font-weight="700">집 안 물 높이 0cm</text>
+      </svg>
+    </div>
+    <div class="legend">
+      <span><i style="background:#1D6B4F"></i>바닥 수위 센서</span>
+      <span><i style="background:#1F5FBF"></i>창문 · 대체 진입로</span>
+      <span><i style="background:#B8471A"></i>물 유입 · 현관문 위험</span>
+      <span><i style="background:rgba(31,95,191,.28)"></i>집 안 물</span>
+    </div>
+    <div class="facts">
+      <div class="fact"><b>출입구 계단 5단</b>혼자서는 탈출 불가</div>
+      <div class="fact"><b>현관문 안쪽 열림</b>수압 시 진입 어려움</div>
+      <div class="fact"><b>역류 지점 2곳</b>싱크대 · 바닥 배수구</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: helper app -->
+  <div class="panel">
+    <h3>④ 조력자 앱</h3>
+    <p class="sub">동행파트너 · 활동지원사 · 이웃 · 복지관 담당자</p>
+    <div class="phone">
+      <div class="ph-top"><small>조력자 · 김OO (동행파트너, 도보 4분)</small><b id="hTitle">담당 가구 1곳 · 이상 없음</b></div>
+      <div class="ph-body">
+        <div class="alert idle" id="hAlert">현재 담당 가구에 위험 신호가 없습니다.</div>
+        <div id="hEta" class="box hide"><h4>도착 예정</h4><div class="eta" id="etaNum">04:00</div><small style="color:var(--muted)">사용자 워치에 실시간 안내 중</small></div>
+        <div id="hItems" class="box hide"><h4>도착하면 먼저 옮겨주세요 (중요 물품)</h4>
+          <ul class="check"><li>☐ 휠체어 충전기 → 침대 위</li><li>☐ 복용 약 · 처방전 → 가방</li><li>☐ 욕창 방지 쿠션 · 보조기기</li></ul></div>
+        <div id="hEntry" class="box hide"><h4>진입 정보 (탈출 지도)</h4>
+          <ul><li>현관문 <b>안쪽 열림</b> → 수압 시 열기 어려움</li><li><b>창문 B</b>(폭 90cm, 방범창 없음)로 진입</li><li>사용자 위치: <b>방 · 침대</b> (창문 B에서 2m)</li></ul></div>
+        <div id="hBody" class="box hide"><h4>나를 옮기는 법 (본인 등록)</h4>
+          <ul><li>반드시 <b>2인 이상</b>이 옮겨주세요</li><li>목과 머리를 받쳐주세요</li><li>체온 조절이 어려워요: 젖은 옷 교체 · 담요</li><li>전동휠체어는 무거워요: 무리하게 들지 마세요</li></ul></div>
+        <div id="hChair" class="box hide"><h4>휠체어 기록</h4>
+          <ul><li>마지막 위치: 방 · 침대 옆 (22:16)</li><li>상태: 바퀴 높이 침수 → 점검 필요</li><li>보조기기 재지급 신청 자료 자동 준비됨</li></ul></div>
+        <div id="hSupport" class="box hide"><h4>이후 지원 연계</h4>
+          <ul><li>휠체어로 갈 수 있는 대피소: 구민체육센터 (경사로 · 장애인 화장실)</li><li>복지관 사례 관리 담당자에게 피해 기록 전달</li><li>긴급지원금 신청 서류 준비</li></ul></div>
+        <div style="display:flex;gap:6px" id="hBtns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- dashboard -->
+  <div class="panel dash">
+    <h3>⑤ 지자체 · 복지관 플랫폼</h3>
+    <p class="sub">관할 재해약자 위험 현황 · 자동 출동 관리 · 동행파트너 연계</p>
+    <table class="dtable">
+      <tr><th>가구</th><th>유형</th><th>공간</th><th>위험 단계</th><th>조력자</th><th>상태</th></tr>
+      <tr><td>정민수 (가상)</td><td>사지마비 · 전동휠체어</td><td>반지하 · 계단 5단</td><td id="dLvl">평상시</td><td>동행파트너 김OO</td><td id="dSt">대기</td></tr>
+      <tr><td>가구 B</td><td>하반신 마비 · 수동휠체어</td><td>반지하 · 경사로 없음</td><td id="dLvl2">평상시</td><td>가족</td><td id="dSt2">대기</td></tr>
+      <tr><td>가구 C</td><td>고령 · 보행 보조기</td><td>저지대 1층</td><td id="dLvl3">평상시</td><td>이웃</td><td id="dSt3">대기</td></tr>
+    </table>
+  </div>
+</main>
+<footer>시연용 프로토타입입니다. 인물·주소·수치는 가상의 예시이며, 실제 서비스에서는 공공 예·경보와 센서 데이터를 결합해 위험 단계를 판단합니다.</footer>
+
+<script>
+const STEPS=[
+ {t:'20:00',ph:'예방',name:'평상시',lvl:0,
+  n:'평상시. 지자체 반지하 조사 때 스캔한 탈출 지도와 본인이 등록한 "나를 옮기는 법"이 플랫폼에 저장되어 있습니다. 워치는 일상 안부를 확인합니다.',
+  w:{lvl:'평상시',msg:'오늘 하루 괜찮으셨어요?',hint:'"괜찮아" 라고 말하면 안부가 전달돼요'},water:0},
+ {t:'20:10',ph:'예방',name:'주의 · 호우 예보',lvl:1,
+  n:'호우 예보 + 우리 집이 반지하. 워치가 진동과 음성으로 "주의"를 알리고, 지정 조력자에게는 대기 알림이 갑니다.',
+  w:{lvl:'주의',msg:'오늘 밤 많은 비가 예보됐어요. 휠체어를 충전해 두세요.',hint:'조력자에게 대기 알림을 보냈어요'},water:0},
+ {t:'21:40',ph:'예방',name:'대피 준비 · 침수 예보',lvl:2,
+  n:'침수 예보 발령. 활동지원사가 퇴근한 뒤라 혼자입니다. 워치가 "도움을 부를까요?"라고 묻고, 사용자가 동의하면 조력자가 출동합니다. 중요 물품 옮기기도 함께 요청합니다.',
+  w:{lvl:'대피 준비',msg:'침수 예보가 내려졌어요. 도움을 부를까요?',hint:'"네" 또는 "괜찮아"라고 말해도 돼요',ask:true},water:0},
+ {t:'22:05',ph:'구조',name:'지금 대피 · 물 감지',lvl:3,
+  n:'싱크대 하수관에서 물이 역류합니다. 바닥 센서가 감지하는 즉시, 사용자의 응답이 없어도 조력자·동행파트너·119에 위치·탈출 지도·몸 정보가 자동 전달됩니다.',
+  w:{lvl:'지금 대피',msg:'물이 들어오고 있어요. 도움이 오고 있어요.',hint:'버튼을 누르지 않아도 연결돼요'},water:12},
+ {t:'22:13',ph:'구조',name:'구조 · 진입과 이송',lvl:4,
+  n:'조력자는 도착 전에 이미 "현관문은 안쪽 열림, 창문 B로 진입"을 알고 있습니다. "나를 옮기는 법"대로 2인이 이송하고, 휠체어 센서는 휠체어의 마지막 위치와 상태를 기록합니다.',
+  w:{lvl:'구조 중',msg:'조력자가 도착했어요. 휠체어 위치는 기록해 두었어요.',hint:'이동 중에도 안내가 이어져요'},water:30},
+ {t:'22:40',ph:'지원',name:'지원 · 이후 연결',lvl:5,
+  n:'휠체어로 갈 수 있는 대피소로 안내하고, 휠체어 침수 기록으로 보조기기 재지급·긴급지원금 신청을 준비합니다. 복지관 사례 관리로 이어집니다.',
+  w:{lvl:'지원',msg:'구민체육센터로 이동 중이에요. 휠체어 점검을 신청했어요.',hint:'복지관 담당자에게 기록을 전달했어요'},water:30}
+];
+let cur=0, called=false, etaT=null, etaS=0;
+const $=id=>document.getElementById(id);
+
+function renderStepper(){
+  $('stepper').innerHTML=STEPS.map((s,i)=>`<button class="step ${i===cur?'on':''}" data-i="${i}"><span class="ph">${s.ph}</span><small>${s.t}</small><b>${s.name}</b></button>`).join('');
+  document.querySelectorAll('.step').forEach(b=>b.onclick=()=>go(+b.dataset.i));
+}
+function setWater(cm){
+  $('water').value=cm;
+  $('sFloor').textContent=cm+' cm';
+  const chair = cur>=4 ? cm : cm;
+  $('sChair').textContent=chair+' cm';
+  $('bFloor').className='badge'+(cm>0?' warn':'');
+  $('bFloor').textContent=cm>0?'물 감지':'정상';
+  $('bChair').className='badge'+(cm>=30?' warn':'');
+  $('bChair').textContent= cur>=4 ? '분리 · 위치 기록' : (cm>=30?'바퀴 침수':'탑승 중');
+  $('waterPlan').setAttribute('opacity', cm>0? Math.min(1, .35+cm/60):0);
+  const h=cm*2.5; const r=$('waterSect'); r.setAttribute('y',400-h); r.setAttribute('height',h);
+  $('sectLbl').textContent='집 안 물 높이 '+cm+'cm'+(cm>=30?' · 바퀴 잠김':'');
+  $('inflowArr').setAttribute('opacity', cm>0?1:0);
+  $('sinkSensor').querySelector('circle').setAttribute('fill', cm>0?'#B8471A':'#1D6B4F');
+}
+function show(id,on){$(id).classList.toggle('hide',!on)}
+function startEta(sec){
+  clearInterval(etaT); etaS=sec; tick();
+  etaT=setInterval(()=>{etaS=Math.max(0,etaS-1);tick();},1000);
+  function tick(){const m=String(Math.floor(etaS/60)).padStart(2,'0'),s=String(etaS%60).padStart(2,'0');$('etaNum').textContent=m+':'+s;}
+}
+function helper(){
+  const s=cur; const a=$('hAlert');
+  ['hEta','hItems','hEntry','hBody','hChair','hSupport'].forEach(x=>show(x,false));
+  $('hBtns').innerHTML='';
+  if(s===0){$('hTitle').textContent='담당 가구 1곳 · 이상 없음';a.className='alert idle';a.textContent='현재 담당 가구에 위험 신호가 없습니다.';}
+  if(s===1){$('hTitle').textContent='대기 알림';a.className='alert amb';a.textContent='[주의] 정민수 님 댁 · 오늘 밤 호우 예보 · 출동 대기 부탁드려요';}
+  if(s===2){
+    $('hTitle').textContent= called?'출동 요청 (사용자 동의)':'대피 준비 · 사용자 응답 대기';
+    a.className= called?'alert blue':'alert amb';
+    a.textContent= called?'[대피 준비] 정민수 님이 도움을 요청했어요. 지금 출발해 주세요.':'[대피 준비] 침수 예보 발령 · 사용자에게 도움 요청 여부를 묻고 있어요.';
+    if(called){show('hItems',true);show('hEntry',true);}
+  }
+  if(s===3){$('hTitle').textContent='자동 출동 요청';a.className='alert org';a.textContent='[지금 대피] 바닥 센서 물 감지 (싱크대 역류) · 응답 없어도 자동 요청 · 119 동시 전달';show('hEta',true);show('hItems',true);show('hEntry',true);show('hBody',true);if(!etaT)startEta(240);}
+  if(s===4){$('hTitle').textContent='현장 도착 · 이송';a.className='alert blue';a.textContent='도착 완료 · 창문 B로 진입 · 2인 이송';show('hEntry',true);show('hBody',true);show('hChair',true);}
+  if(s===5){$('hTitle').textContent='이후 지원';a.className='alert grn';a.textContent='이송 완료 · 대피소 안내 및 지원 연계';show('hChair',true);show('hSupport',true);}
+  if(s!==3){clearInterval(etaT);etaT=null;}
+}
+function watch(){
+  const w=STEPS[cur].w; const f=$('face');
+  f.className='face l'+cur; $('wlvl').textContent=w.lvl; $('wmsg').textContent=w.msg; $('whint').textContent=w.hint;
+  $('wbtns').innerHTML='';
+  if(w.ask && !called){
+    $('wbtns').innerHTML='<button id="yes" style="background:#7FB0F5;color:#0F2340">네, 불러주세요</button><button id="no" style="background:#3B4652;color:#EEF2F5">괜찮아요</button>';
+    $('yes').onclick=()=>{called=true;$('voice').textContent='🎙 사용자: "네" → 조력자 출동 요청 완료';render();};
+    $('no').onclick=()=>{$('voice').textContent='🎙 사용자: "괜찮아" → 물이 감지되면 자동으로 연결해요';};
+  } else if(w.ask && called){ $('wmsg').textContent='조력자 김OO님이 오고 있어요. 충전기와 약을 옮겨드릴 거예요.'; }
+  f.classList.remove('vib'); void f.offsetWidth; if(cur>0) f.classList.add('vib');
+}
+function dash(){
+  const L=['평상시','주의','대피 준비','지금 대피','구조 중','지원'];
+  $('dLvl').innerHTML= cur===0?'평상시':`<span class="badge ${cur>=3&&cur<5?'warn':cur===5?'':'amb'}">${L[cur]}</span>`;
+  $('dSt').textContent=['대기','대기 알림 발송','사용자 응답 대기'+(called?' → 출동 중':''),'자동 출동 · 119 전달','이송 중','대피소 · 사례 관리'][cur];
+  const other = cur>=1 && cur<=3;
+  $('dLvl2').innerHTML= other?`<span class="badge amb">${cur>=2?'대피 준비':'주의'}</span>`:'평상시';
+  $('dSt2').textContent= other?'가족 연락 완료':'대기';
+  $('dLvl3').innerHTML= other?'<span class="badge amb">주의</span>':'평상시';
+  $('dSt3').textContent= other?'안부 확인 완료':'대기';
+}
+function route(){ $('route').setAttribute('opacity', (cur>=3 || (cur===2&&called))?1:0);
+  const chair=$('chairPin'); chair.setAttribute('opacity',1);
+  $('userPin').setAttribute('opacity', cur>=5?0.25:1);
+}
+function render(){
+  renderStepper();
+  const s=STEPS[cur];
+  $('ntag').textContent=s.ph+' · '+s.t; $('ntext').textContent=s.n;
+  setWater(s.water); watch(); helper(); dash(); route();
+  $('prev').disabled=cur===0; $('next').textContent=cur===STEPS.length-1?'처음으로':'다음 단계';
+}
+function go(i){ if(i===0){called=false;$('voice').textContent='';} cur=i; render(); }
+$('next').onclick=()=>go(cur===STEPS.length-1?0:cur+1);
+$('prev').onclick=()=>{if(cur>0)go(cur-1)};
+$('water').oninput=e=>setWater(+e.target.value);
+$('inflow').onclick=()=>go(3);
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
+  show('vplan',t.dataset.v==='plan'); show('vsect',t.dataset.v==='sect');
+});
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')$('next').click(); if(e.key==='ArrowLeft')$('prev').click();});
+render();
+</script>
+</body>
+</html>
