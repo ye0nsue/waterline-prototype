@@ -54,6 +54,8 @@ main{display:grid;grid-template-columns:300px 1fr 340px;gap:16px;padding:16px 24
 .vib{animation:vib .12s linear 0s 6}
 @keyframes vib{0%{transform:translateX(0)}50%{transform:translateX(2px)}100%{transform:translateX(-2px)}}
 .voice{font-size:12px;color:var(--muted);text-align:center;min-height:18px}
+.sound{font-size:12px;color:var(--muted);text-align:center;min-height:18px;margin-top:2px}
+.sound.play{color:var(--blue);font-weight:700}
 /* sensors */
 .sensor{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fff}
 .sensor b{font-size:14px}.sensor small{display:block;color:var(--muted);font-size:12px}
@@ -111,6 +113,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   <span class="tag" id="ntag">예방</span>
   <p id="ntext"></p>
   <div class="ctrl">
+    <button class="btn ghost" id="mute" aria-pressed="false" title="워치 알림음 켜기/끄기">🔔 알림음 켜짐</button>
     <button class="btn ghost" id="prev">이전</button>
     <button class="btn" id="next">다음 단계</button>
   </div>
@@ -131,6 +134,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
         </div>
       </div></div>
       <div class="voice" id="voice"></div>
+      <div class="sound" id="soundLbl"></div>
     </div>
     <div class="panel">
       <h3>② 센서</h3>
@@ -265,8 +269,8 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
           <ul class="check"><li>☐ 휠체어 충전기 → 침대 위</li><li>☐ 복용 약 · 처방전 → 가방</li><li>☐ 욕창 방지 쿠션 · 보조기기</li></ul></div>
         <div id="hEntry" class="box hide"><h4>진입 정보 (탈출 지도)</h4>
           <ul><li>현관문 <b>안쪽 열림</b> → 수압 시 열기 어려움</li><li><b>창문 B</b>(폭 90cm, 방범창 없음)로 진입</li><li>사용자 위치: <b>방 · 침대</b> (창문 B에서 2m)</li></ul></div>
-        <div id="hBody" class="box hide"><h4>나를 옮기는 법 (본인 등록)</h4>
-          <ul><li>반드시 <b>2인 이상</b>이 옮겨주세요</li><li>목과 머리를 받쳐주세요</li><li>체온 조절이 어려워요: 젖은 옷 교체 · 담요</li><li>전동휠체어는 무거워요: 무리하게 들지 마세요</li></ul></div>
+        <div id="hBody" class="box hide"><h4>이렇게 도와주세요 (본인 등록)</h4>
+          <ul><li>꼭 <b>2명 이상</b>이 함께 도와주세요</li><li>목과 머리를 받쳐주세요</li><li>체온 조절이 어려워요: 젖은 옷 교체 · 담요</li><li>전동휠체어는 무거워요: 무리하게 들지 마세요</li></ul></div>
         <div id="hChair" class="box hide"><h4>휠체어 기록</h4>
           <ul><li>마지막 위치: 방 · 침대 옆 (22:16)</li><li>상태: 바퀴 높이 침수 → 점검 필요</li><li>보조기기 재지급 신청 자료 자동 준비됨</li></ul></div>
         <div id="hSupport" class="box hide"><h4>이후 지원 연계</h4>
@@ -293,7 +297,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
 <script>
 const STEPS=[
  {t:'20:00',ph:'예방',name:'평상시',lvl:0,
-  n:'평상시. 지자체 반지하 조사 때 스캔한 탈출 지도와 본인이 등록한 "나를 옮기는 법"이 플랫폼에 저장되어 있습니다. 워치는 일상 안부를 확인합니다.',
+  n:'평상시. 지자체 반지하 조사 때 스캔한 탈출 지도와 본인이 등록한 "이렇게 도와주세요" 안내가 플랫폼에 저장되어 있습니다. 워치는 일상 안부를 확인합니다.',
   w:{lvl:'평상시',msg:'오늘 하루 괜찮으셨어요?',hint:'"괜찮아" 라고 말하면 안부가 전달돼요'},water:0},
  {t:'20:10',ph:'예방',name:'주의 · 호우 예보',lvl:1,
   n:'호우 예보 + 우리 집이 반지하. 워치가 진동과 음성으로 "주의"를 알리고, 지정 조력자에게는 대기 알림이 갑니다.',
@@ -305,7 +309,7 @@ const STEPS=[
   n:'싱크대 하수관에서 물이 역류합니다. 바닥 센서가 감지하는 즉시, 사용자의 응답이 없어도 조력자·동행파트너·119에 위치·탈출 지도·몸 정보가 자동 전달됩니다.',
   w:{lvl:'지금 대피',msg:'물이 들어오고 있어요. 도움이 오고 있어요.',hint:'버튼을 누르지 않아도 연결돼요'},water:12},
  {t:'22:13',ph:'구조',name:'구조 · 진입과 이송',lvl:4,
-  n:'조력자는 도착 전에 이미 "현관문은 안쪽 열림, 창문 B로 진입"을 알고 있습니다. "나를 옮기는 법"대로 2인이 이송하고, 휠체어 센서는 휠체어의 마지막 위치와 상태를 기록합니다.',
+  n:'조력자는 도착 전에 이미 "현관문은 안쪽 열림, 창문 B로 진입"을 알고 있습니다. "이렇게 도와주세요" 안내대로 2명이 함께 이동을 돕고, 휠체어 센서는 휠체어의 마지막 위치와 상태를 기록합니다.',
   w:{lvl:'구조 중',msg:'조력자가 도착했어요. 휠체어 위치는 기록해 두었어요.',hint:'이동 중에도 안내가 이어져요'},water:30},
  {t:'22:40',ph:'지원',name:'지원 · 이후 연결',lvl:5,
   n:'휠체어로 갈 수 있는 대피소로 안내하고, 휠체어 침수 기록으로 보조기기 재지급·긴급지원금 신청을 준비합니다. 복지관 사례 관리로 이어집니다.',
@@ -388,7 +392,56 @@ function render(){
   setWater(s.water); watch(); helper(); dash(); route();
   $('prev').disabled=cur===0; $('next').textContent=cur===STEPS.length-1?'처음으로':'다음 단계';
 }
-function go(i){ if(i===0){called=false;$('voice').textContent='';} cur=i; render(); }
+/* ── 워치 알림음 ──────────────────────────────────────────
+   공포감을 주지 않도록: 사이렌·고음·불협화음 없이
+   부드러운 사인파 차임(벨 소리)만 사용하고, 볼륨을 낮게,
+   소리의 시작과 끝을 둥글게 처리한다. 단계가 올라갈수록
+   '반복 횟수와 속도'로만 중요도를 구분한다.          */
+let actx=null, muted=false;
+const NOTE={G3:196,C4:261.63,E4:329.63,G4:392,A4:440,C5:523.25,D5:587.33,E5:659.25,G5:783.99};
+const TONES={
+  0:null,
+  1:{label:'🔔 알림음: 낮은 차임 1번 (가볍게 알림)', vol:.13,
+     seq:[['E4',0,1.2],['G4',.35,1.4]]},
+  2:{label:'🔔 알림음: 올라가는 차임 2번 (준비하세요)', vol:.15,
+     seq:[['C4',0,.9],['E4',.22,.9],['G4',.44,1.2],
+          ['C4',1.5,.9],['E4',1.72,.9],['G4',1.94,1.4]]},
+  3:{label:'🔔 알림음: 또렷한 차임 3번 반복 (지금 움직이세요)', vol:.17,
+     seq:[0,1.1,2.2].flatMap(t=>[['G4',t,.7],['C5',t+.18,.9]])},
+  4:{label:'🔔 알림음: 내려가는 따뜻한 차임 (도움이 왔어요)', vol:.13,
+     seq:[['G4',0,1.2],['E4',.4,1.3],['C4',.8,1.8]]},
+  5:{label:'🔔 알림음: 잔잔한 화음 (안전해요)', vol:.11,
+     seq:[['C4',0,2.4],['E4',.15,2.3],['G4',.3,2.2],['C5',.45,2.4]]}
+};
+function chime(freq,start,dur,vol){
+  const t=actx.currentTime+start;
+  const out=actx.createGain();
+  out.gain.setValueAtTime(0,t);
+  out.gain.linearRampToValueAtTime(vol,t+.04);           // 부드러운 시작
+  out.gain.exponentialRampToValueAtTime(.0001,t+dur);    // 자연스럽게 사라짐
+  const lp=actx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800;
+  out.connect(lp).connect(actx.destination);
+  // 기음 + 약한 배음 → 종소리처럼 둥근 음색
+  [[1,1],[2,.18],[3,.05]].forEach(([m,g])=>{
+    const o=actx.createOscillator(), og=actx.createGain();
+    o.type='sine'; o.frequency.value=freq*m; og.gain.value=g;
+    o.connect(og).connect(out); o.start(t); o.stop(t+dur+.05);
+  });
+}
+function playTone(step){
+  const tone=TONES[step];
+  $('soundLbl').textContent=tone?tone.label:'';
+  if(!tone||muted) return;
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+    tone.seq.forEach(([n,st,d])=>chime(NOTE[n],st,d,tone.vol));
+    const l=$('soundLbl'); l.classList.add('play');
+    const end=Math.max(...tone.seq.map(([,st,d])=>st+d))*1000;
+    clearTimeout(playTone._t); playTone._t=setTimeout(()=>l.classList.remove('play'),end);
+  }catch(e){}
+}
+function go(i){ if(i===0){called=false;$('voice').textContent='';} const changed=i!==cur; cur=i; render(); if(changed) playTone(cur); }
 $('next').onclick=()=>go(cur===STEPS.length-1?0:cur+1);
 $('prev').onclick=()=>{if(cur>0)go(cur-1)};
 $('water').oninput=e=>setWater(+e.target.value);
@@ -398,6 +451,13 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   show('vplan',t.dataset.v==='plan'); show('vsect',t.dataset.v==='sect');
 });
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')$('next').click(); if(e.key==='ArrowLeft')$('prev').click();});
+$('mute').onclick=()=>{
+  muted=!muted;
+  $('mute').textContent=muted?'🔕 알림음 꺼짐':'🔔 알림음 켜짐';
+  $('mute').setAttribute('aria-pressed',muted);
+  if(muted&&actx) actx.suspend(); else if(actx) actx.resume();
+  if(!muted) playTone(cur);
+};
 render();
 </script>
 </body>
