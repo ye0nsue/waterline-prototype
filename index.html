@@ -18,9 +18,18 @@ header{display:flex;align-items:center;justify-content:space-between;padding:14p
 .brand{display:flex;align-items:baseline;gap:12px}
 .brand b{font-size:22px;font-weight:900;letter-spacing:.04em;color:var(--blue)}
 .brand span{color:var(--muted);font-size:14px}
-.persona{font-size:13px;color:var(--muted);text-align:right}
+.persona{font-size:13px;color:var(--muted);text-align:right;display:flex;align-items:center;gap:10px}
+.persona img{height:39px;height:2lh;width:auto;flex:none;transform:scaleX(-1)}
+.roles{display:flex;gap:8px;padding:14px 24px 0;background:var(--card)}
+.role{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:14px;font-weight:700;white-space:nowrap;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.role svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.role:hover{border-color:var(--blue)}
+.role[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+main [data-role]{transition:opacity .25s,filter .25s}
+main.focus [data-role]{opacity:.75;filter:brightness(.82) saturate(.5)}
+main.focus [data-role].lit{opacity:1;filter:none}
 .stepper{display:flex;gap:8px;padding:14px 24px;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto}
-.step{flex:1;min-width:150px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.step{flex:1;min-width:150px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}
 .step small{display:block;color:var(--muted);font-size:12px}
 .step b{font-size:14px}
 .step.on{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue) inset;background:var(--blue-soft)}
@@ -93,20 +102,53 @@ input[type=range]{width:100%}
 .box li{margin:2px 0}
 .check li{list-style:none;margin-left:-18px}
 .hide{display:none!important}
-.dash{grid-column:1/-1}
+.dash{grid-column:1/-1;margin:15px}
 .dtable{width:100%;border-collapse:collapse;font-size:13px}
 .dtable th,.dtable td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
 .dtable th{color:var(--muted);font-weight:500}
 footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
-@media (max-width:1180px){main{grid-template-columns:1fr}}
+@media (max-width:1180px){main{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  body{font-size:14px}
+  header{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:12px;padding:18px 16px 16px}
+  .brand{grid-column:1;grid-row:1;flex-direction:column;gap:4px}
+  .brand b{font-size:28px;line-height:1.1}
+  .brand span{font-size:13px;line-height:1.45}
+  .persona{display:contents}
+  .persona span{grid-column:1 / -1;grid-row:2;font-size:12px;line-height:1.6;text-align:left}
+  .persona img{grid-column:2;grid-row:1;align-self:center;height:75px;width:auto}
+  .roles{padding:12px 16px 0;gap:6px}
+  .role{flex-direction:column;gap:4px;font-size:12px;padding:8px 6px;white-space:normal;text-align:center;line-height:1.3}
+  .stepper{padding:10px 16px;gap:6px}
+  .step{min-width:118px;padding:6px 10px}
+  .narr{margin:12px 16px 0;padding:12px 14px;flex-wrap:wrap;gap:10px}
+  .narr p{flex:1 1 200px;font-size:14px}
+  .ctrl{margin-left:0;width:100%;flex-wrap:wrap}
+  .ctrl .btn{flex:1 1 auto;padding:10px 12px}
+  #mute{flex-basis:100%}
+  main{gap:12px;padding:12px 16px 24px}
+  .col{gap:12px}
+  .panel{padding:14px}
+  .watch{width:200px;height:240px}
+  .facts{grid-template-columns:1fr}
+  .phone{min-height:0;border-width:8px;border-radius:24px}
+  .dash{margin:0}
+  .dtable{display:block;overflow-x:auto;white-space:nowrap}
+  footer{padding:0 16px 20px}
+}
 </style>
 </head>
 <body>
 <header>
   <div class="brand"><b>WATERLINE</b><span>MVP 프로토타입 · 반지하 휠체어 사용자 집중호우 대응</span></div>
-  <div class="persona">가상 퍼소나 · 정민수(52) · 경수 손상 사지마비 · 전동휠체어<br>서울 관악구 다세대주택 반지하 · 활동지원사 퇴근 후 혼자 있는 밤</div>
+  <div class="persona"><span>가상 퍼소나 · 정민수(52) · 경수 손상 사지마비 · 전동휠체어<br>서울 관악구 다세대주택 반지하 · 활동지원사 퇴근 후 혼자 있는 밤</span><img src="assets/persona-wheelchair.png" alt="전동휠체어에 앉은 정민수 일러스트"></div>
 </header>
 
+<nav class="roles" id="roles" aria-label="보는 사람 선택">
+  <button class="role" data-role="user" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>사용자</button>
+  <button class="role" data-role="helper" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="7.5" r="3"/><circle cx="16.5" cy="8.5" r="2.5"/><path d="M2.5 19.5c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><path d="M14 13.6c.8-.4 1.6-.6 2.5-.6 2.8 0 5 2.4 5 5.5"/></svg>조력자</button>
+  <button class="role" data-role="platform" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5h18"/><path d="M4.5 20.5v-10h15v10"/><path d="M2.5 10.5 12 4l9.5 6.5"/><path d="M8 13.5v4M12 13.5v4M16 13.5v4"/></svg>지자체 · 복지관 플랫폼</button>
+</nav>
 <div class="stepper" id="stepper"></div>
 
 <div class="narr">
@@ -122,7 +164,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
 <main>
   <!-- LEFT: user devices -->
   <div class="col">
-    <div class="panel">
+    <div data-role="user" class="panel">
       <h3>① 사용자 워치</h3>
       <p class="sub">음성·진동 중심 · 손을 쓰지 않아도 됨 · 자는 동안 착용</p>
       <div class="watch"><div class="face l0" id="face">
@@ -136,7 +178,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
       <div class="voice" id="voice"></div>
       <div class="sound" id="soundLbl"></div>
     </div>
-    <div class="panel">
+    <div data-role="user" class="panel">
       <h3>② 센서</h3>
       <p class="sub">바닥 센서는 스캔으로 찾은 역류 지점(싱크대) 옆에 설치</p>
       <div class="sensor"><div><b>바닥 수위 센서</b><small>주방 싱크대 하수구 옆</small></div><div style="text-align:right"><div class="val" id="sFloor">0 cm</div><span class="badge" id="bFloor">정상</span></div></div>
@@ -148,7 +190,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   </div>
 
   <!-- CENTER: escape map -->
-  <div class="panel">
+  <div data-role="helper platform" class="panel">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px">
       <div style="flex:1 1 260px;min-width:0"><h3>③ 반지하 탈출 지도 (스캔 데이터)</h3>
       <p class="sub">지자체 반지하 상태 조사 방문 시 동의 후 LiDAR·광학 스캔 · 사람은 지우고 공간 구조만 저장</p></div>
@@ -257,7 +299,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   </div>
 
   <!-- RIGHT: helper app -->
-  <div class="panel">
+  <div data-role="helper" class="panel">
     <h3>④ 조력자 앱</h3>
     <p class="sub">동행파트너 · 활동지원사 · 이웃 · 복지관 담당자</p>
     <div class="phone">
@@ -281,7 +323,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   </div>
 
   <!-- dashboard -->
-  <div class="panel dash">
+  <div data-role="platform" class="panel dash">
     <h3>⑤ 지자체 · 복지관 플랫폼</h3>
     <p class="sub">관할 재해약자 위험 현황 · 자동 출동 관리 · 동행파트너 연계</p>
     <table class="dtable">
@@ -450,6 +492,14 @@ document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
   document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
   show('vplan',t.dataset.v==='plan'); show('vsect',t.dataset.v==='sect');
 });
+let role=null;
+function applyRole(){
+  const m=document.querySelector('main');
+  m.classList.toggle('focus',!!role);
+  m.querySelectorAll('[data-role]').forEach(el=>el.classList.toggle('lit',!!role&&el.dataset.role.split(' ').includes(role)));
+  document.querySelectorAll('.role').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.role===role)));
+}
+document.querySelectorAll('.role').forEach(b=>b.onclick=()=>{role=role===b.dataset.role?null:b.dataset.role;applyRole();});
 document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')$('next').click(); if(e.key==='ArrowLeft')$('prev').click();});
 $('mute').onclick=()=>{
   muted=!muted;
