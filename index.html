@@ -2,7 +2,8 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FCFCFA">
 <title>WATERLINE 휠체어 태그</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
 <style>
@@ -11,6 +12,8 @@
   --blue:#1F5FBF; --blue-soft:#E3ECF8; --orange:#B8471A; --green:#1D6B4F; --green-soft:#DDEFE6;
 }
 *{box-sizing:border-box}
+button,a,input,label{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',Arial,sans-serif;font-size:15px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
 header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--card);flex-wrap:wrap}
 .brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
@@ -89,11 +92,41 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   .tabs{padding:12px 16px;gap:6px}
   .tab{flex-direction:column;gap:4px;font-size:12px;padding:8px 6px}
   main{padding:12px 16px 24px;gap:12px}
-  .stage{height:62vh;min-height:420px;position:relative;top:auto}
-  .ctrl input[type=range]{width:120px}
-  .lbl{font-size:11px}
-  footer{padding:0 16px 20px}
+  .stage{height:60vh;height:60svh;min-height:360px;max-height:600px;position:relative;top:auto}
+  .stage.full{max-height:none}
+  /* controls: one horizontally scrollable row instead of a wrapped block covering the model */
+  .hud{left:0;right:0;bottom:0;padding:0 10px 10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:8px}
+  .hud::-webkit-scrollbar{display:none}
+  .hud .ctrl{flex:none;padding:6px 8px}
+  .hud .ctrl-rot{display:none}
+  .btn{font-size:13px;padding:8px 12px;border-radius:9px}
+  .hint{font-size:11px;left:10px;top:12px;max-width:calc(100% - 130px)}
+  .fsbtn{right:10px;top:8px;padding:8px 11px}
+  .lbl{font-size:11px;padding:1px 8px 1px 6px}
+  .panel{padding:14px}
+  .water .val{font-size:20px}
+  footer{padding:0 16px calc(20px + env(safe-area-inset-bottom))}
 }
+/* phone in landscape: let the model fill the screen height */
+@media (max-height:500px) and (orientation:landscape){
+  main{grid-template-columns:minmax(0,1fr)}
+  .stage{height:calc(100vh - 24px);height:calc(100svh - 24px);min-height:0;max-height:none;position:relative;top:auto}
+  .hud{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .hud::-webkit-scrollbar{display:none}
+  .hud .ctrl{flex:none}
+  .fswater{top:52px}
+}
+/* touch: bigger hit targets on sliders and checkboxes */
+@media (pointer:coarse){
+  input[type=range]{height:28px}
+  input[type=checkbox]{width:18px;height:18px;vertical-align:-4px}
+  .parts li{cursor:pointer}
+}
+/* fullscreen on notched phones */
+.stage.full .fsbtn{top:calc(10px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right))}
+.stage.full .hint{top:calc(12px + env(safe-area-inset-top));left:calc(14px + env(safe-area-inset-left))}
+.stage.full .hud{bottom:env(safe-area-inset-bottom);padding-left:calc(10px + env(safe-area-inset-left));padding-right:calc(10px + env(safe-area-inset-right))}
+@media (max-width:640px){.stage.full .fswater{top:calc(52px + env(safe-area-inset-top))}}
 </style>
 </head>
 <body>
@@ -118,9 +151,9 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
       <button class="btn" data-lv="5">5cm</button><button class="btn" data-lv="10">10cm</button><button class="btn" data-lv="20">20cm</button><button class="btn" data-lv="30">30cm</button>
       <span class="fst" id="wState2">정상 · 물 감지 없음</span>
     </div>
-    <div class="hint">드래그로 회전 · 휠/핀치로 확대</div>
+    <div class="hint" id="hint">드래그로 회전 · 휠/핀치로 확대</div>
     <div class="hud">
-      <div class="ctrl"><label for="rot">회전</label><input type="range" id="rot" min="0" max="359" value="35"><output id="rotOut">35°</output></div>
+      <div class="ctrl ctrl-rot"><label for="rot">회전</label><input type="range" id="rot" min="0" max="359" value="35"><output id="rotOut">35°</output></div>
       <div class="ctrl">
         <button class="btn on" id="auto">자동 회전</button>
         <button class="btn" data-view="front">정면</button>
@@ -161,12 +194,14 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
 <script>
 (()=>{
 const D2R=Math.PI/180;
+const TOUCH=matchMedia('(pointer:coarse)').matches, SMALL=TOUCH||Math.min(screen.width,screen.height)<700;
+if(TOUCH) document.getElementById('hint').textContent='드래그로 회전 · 두 손가락으로 확대';
 const C={ink:0x16202B,blue:0x1F5FBF,silver:0xB4BCC4,light:0xEEF2F5,soft:0xE3ECF8};
 
 /* ---------- renderer ---------- */
 const canvas=document.getElementById('gl'), stage=document.getElementById('stage');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setPixelRatio(Math.min(devicePixelRatio,SMALL?1.5:2));
 renderer.outputEncoding=THREE.sRGBEncoding;
 renderer.toneMapping=THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure=1.05;
@@ -196,7 +231,7 @@ const camera=new THREE.PerspectiveCamera(32,1,1,3000);
   pm.dispose();
 })();
 const key=new THREE.DirectionalLight(0xffffff,.85);
-key.castShadow=true; key.shadow.mapSize.set(2048,2048);
+key.castShadow=true; key.shadow.mapSize.set(SMALL?1024:2048,SMALL?1024:2048);
 key.shadow.bias=-.0006; key.shadow.normalBias=.08;
 scene.add(key); scene.add(key.target);
 scene.add(new THREE.HemisphereLight(0xffffff,0xb8b8b0,.18));
@@ -598,7 +633,7 @@ function show(k){
   document.getElementById('notes').innerHTML=tx.notes.map(n=>`<li>${n}</li>`).join('');
   const keys=['main','probe','clamp','cable','pad'].filter(p=>cur.parts[p]);
   partsEl.innerHTML=keys.map(p=>`<li data-k="${p}"><b><i style="background:${PART_INFO[p].color}"></i>${PART_INFO[p].name}</b><small>${PART_INFO[p].d}</small></li>`).join('');
-  [...partsEl.children].forEach(li=>{li.onmouseenter=()=>setHighlight(li.dataset.k);li.onmouseleave=()=>setHighlight(null);});
+  [...partsEl.children].forEach(li=>{li.onmouseenter=()=>setHighlight(li.dataset.k);li.onmouseleave=()=>setHighlight(null);li.onclick=()=>setHighlight(li.classList.contains('hi')?null:li.dataset.k);});
   labelsEl.innerHTML='';
   labelEls=cur.anchors.map(a=>{const el=document.createElement('div');el.className='lbl';el.innerHTML=`<i style="background:#${a.color.toString(16).padStart(6,'0')};border:1px solid rgba(22,32,43,.4)"></i>${a.text}`;labelsEl.appendChild(el);return{...a,el};});
   applyWater();
@@ -671,10 +706,15 @@ let W=1,H=1;
 function resize(){W=stage.clientWidth;H=stage.clientHeight;renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();}
 new ResizeObserver(resize).observe(stage); resize();
 
+/* skip rendering while the stage is scrolled away (saves battery on phones) */
+let onScreen=true;
+if('IntersectionObserver' in window) new IntersectionObserver(es=>{onScreen=es[0].isIntersecting;}).observe(stage);
+
 /* loop */
 const v3=new THREE.Vector3(), tv=new THREE.Vector3(), ray=new THREE.Raycaster(); ray.camera=camera; let last=performance.now();
 function frame(now){
   const dt=Math.min(.05,(now-last)/1000); last=now;
+  if(!onScreen&&!stage.classList.contains('full')){requestAnimationFrame(frame);return;}
   if(auto) theta+=dt*.4;
   const f=focus&&cur.focus[focus], t=f?f.t:cur.target, narrow=W/H<1?1.35:1, d=(f?f.d:cur.dist)*zoom*narrow;
   const k=snap?1:1-Math.exp(-dt*7); snap=false;
