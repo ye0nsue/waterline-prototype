@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WATERLINE 휠체어 태그</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+:root{
+  --bg:#F4F5F1; --card:#FCFCFA; --ink:#16202B; --muted:#56616D; --line:#D9DDD6;
+  --blue:#1F5FBF; --blue-soft:#E3ECF8; --orange:#B8471A; --green:#1D6B4F; --green-soft:#DDEFE6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Noto Sans KR',Arial,sans-serif;font-size:15px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--card);flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand b{font-size:22px;font-weight:900;letter-spacing:.04em;color:var(--blue)}
+.brand span{color:var(--muted);font-size:14px}
+.links{display:flex;gap:8px}
+.links a{font-size:13px;font-weight:700;color:var(--ink);text-decoration:none;border:1px solid var(--line);border-radius:99px;padding:5px 12px;background:#fff}
+.links a:hover{border-color:var(--blue);color:var(--blue)}
+.tabs{display:flex;gap:8px;padding:14px 24px;background:var(--card);border-bottom:1px solid var(--line)}
+.tab{flex:1;font:inherit;font-size:14px;font-weight:700;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.tab svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tab:hover{border-color:var(--blue)}
+.tab[aria-selected="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
+main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;padding:16px 24px 32px}
+.stage{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;height:min(calc(100vh - 190px),780px);min-height:520px;align-self:start;position:sticky;top:16px}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+#gl.drag{cursor:grabbing}
+.labels{position:absolute;inset:0;pointer-events:none}
+.lbl{position:absolute;transform:translate(14px,-50%);display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:12px;font-weight:700;color:var(--ink);background:rgba(252,252,250,.92);border:1px solid var(--line);border-radius:99px;padding:2px 10px 2px 8px;transition:opacity .2s}
+.lbl::before{content:"";position:absolute;left:-14px;top:50%;width:14px;height:1px;background:var(--ink)}
+.lbl::after{content:"";position:absolute;left:-18px;top:50%;width:7px;height:7px;margin-top:-3.5px;border-radius:50%;background:var(--blue);border:1.5px solid #fff}
+.lbl i{width:8px;height:8px;border-radius:2px;flex:none}
+.lbl.hi{border-color:var(--blue);color:var(--blue)}
+.hud{position:absolute;left:14px;right:14px;bottom:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;pointer-events:none}
+.hud>*{pointer-events:auto}
+.ctrl{display:flex;align-items:center;gap:8px;background:rgba(252,252,250,.95);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.ctrl label{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}
+.ctrl input[type=range]{width:180px}
+.ctrl output{font-size:13px;font-weight:700;min-width:44px;text-align:right}
+.btn{font:inherit;font-size:12px;font-weight:700;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--blue)}
+.btn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.hint{position:absolute;left:14px;top:12px;font-size:12px;color:var(--muted);background:rgba(252,252,250,.9);border-radius:8px;padding:3px 8px;pointer-events:none}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h3{margin:0 0 4px;font-size:15px}
+.panel .sub{margin:0 0 12px;font-size:12px;color:var(--muted)}
+.side{display:flex;flex-direction:column;gap:16px}
+.parts{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.parts li{border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:#fff;cursor:default;transition:border-color .2s,background .2s}
+.parts li:hover,.parts li.hi{border-color:var(--blue);background:var(--blue-soft)}
+.parts b{display:flex;align-items:center;gap:8px;font-size:14px}
+.parts b i{width:10px;height:10px;border-radius:3px;flex:none;border:1px solid rgba(22,32,43,.4)}
+.parts small{display:block;color:var(--muted);font-size:12px;margin-top:2px;line-height:1.5}
+.water{display:flex;flex-direction:column;gap:8px}
+.water .row{display:flex;justify-content:space-between;align-items:center}
+.water .val{font-weight:900;font-size:22px}
+.sens{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sens span{text-align:center;font-size:12px;font-weight:700;border-radius:8px;padding:6px 0;background:#EEF0EC;color:var(--muted);transition:background .2s,color .2s}
+.sens span.wet{background:var(--blue);color:#fff}
+.state{font-size:13px;font-weight:700;border-radius:10px;padding:8px 12px;background:var(--green-soft);color:var(--green)}
+.state.warn{background:#FBE6DB;color:var(--orange)}
+.notes{margin:0;padding-left:18px;font-size:13px;color:var(--ink)}
+.notes li{margin:4px 0}
+.notes b{color:var(--blue)}
+footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
+@media (max-width:1100px){main{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){
+  header{padding:12px 16px}
+  .tabs{padding:12px 16px;gap:6px}
+  .tab{flex-direction:column;gap:4px;font-size:12px;padding:8px 6px}
+  main{padding:12px 16px 24px;gap:12px}
+  .stage{height:62vh;min-height:420px;position:relative;top:auto}
+  .ctrl input[type=range]{width:120px}
+  .lbl{font-size:11px}
+  footer{padding:0 16px 20px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><b>WATERLINE</b><span>휠체어 태그 · 3D 형태 확인</span></div>
+  <nav class="links"><a href="index.html">프로토타입</a><a href="slides.html">디자인 설명</a></nav>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" data-v="tag" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="7" rx="2"/><path d="M12 10v3"/><rect x="10.5" y="13" width="3" height="8" rx="1"/></svg>태그 단독</button>
+  <button class="tab" role="tab" data-v="manual" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="10" cy="15" r="6"/><circle cx="19" cy="19" r="2"/><path d="M8 3v9h8l3 5"/></svg>수동휠체어 장착</button>
+  <button class="tab" role="tab" data-v="power" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="5" y="13" width="14" height="5" rx="1.5"/><circle cx="8" cy="19" r="2.5"/><circle cx="17" cy="19.5" r="1.5"/><path d="M7 13V4h4v9M11 9h8"/></svg>전동휠체어 장착</button>
+</div>
+
+<main>
+  <div class="stage" id="stage">
+    <canvas id="gl" aria-label="휠체어 태그 3D 모델. 드래그해서 돌려볼 수 있습니다."></canvas>
+    <div class="labels" id="labels"></div>
+    <div class="hint">드래그로 회전 · 휠/핀치로 확대</div>
+    <div class="hud">
+      <div class="ctrl"><label for="rot">회전</label><input type="range" id="rot" min="0" max="359" value="35"><output id="rotOut">35°</output></div>
+      <div class="ctrl">
+        <button class="btn on" id="auto">자동 회전</button>
+        <button class="btn" data-view="front">정면</button>
+        <button class="btn" data-view="side">측면</button>
+        <button class="btn" data-view="back">후면</button>
+        <button class="btn" data-view="top">위</button>
+      </div>
+      <div class="ctrl"><label><input type="checkbox" id="showLbl" checked> 라벨</label></div>
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="panel">
+      <h3 id="pTitle">태그 구성</h3>
+      <p class="sub" id="pSub"></p>
+      <ul class="parts" id="parts"></ul>
+    </div>
+    <div class="panel water">
+      <h3>수위 시연</h3>
+      <p class="sub" style="margin:0">바닥에서 물이 차오르면 막대 속 센서가 아래부터 차례로 반응합니다.</p>
+      <div class="row"><span class="val" id="wVal">0 cm</span><input type="range" id="wl" min="0" max="40" value="0" style="width:60%"></div>
+      <div class="sens" id="sens"><span>5cm</span><span>10cm</span><span>20cm</span><span>30cm</span></div>
+      <div class="state" id="wState">정상 · 물 감지 없음</div>
+    </div>
+    <div class="panel">
+      <h3 id="nTitle">재질 · 기술</h3>
+      <ul class="notes" id="notes"></ul>
+    </div>
+  </div>
+</main>
+<footer>개념 설계용 3D 모형입니다. 크기와 장착 위치는 실제 휠체어 기종에 따라 달라지며, 시제품 검증이 필요합니다.</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(()=>{
+const D2R=Math.PI/180;
+const C={ink:0x16202B,navy:0x2C3640,blue:0x1F5FBF,blueL:0x5B8FE0,soft:0xE3ECF8,silver:0xB4BCC4,light:0xEEF2F5,tire:0x222A33,rim:0xD3D8DC,gray:0x9AA3AC,green:0x2FA36F,ground:0xE6E9E2,water:0x1F5FBF};
+
+/* ---------- renderer ---------- */
+const canvas=document.getElementById('gl'), stage=document.getElementById('stage');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(32,1,1,3000);
+scene.add(new THREE.AmbientLight(0xffffff,.62));
+const sun=new THREE.DirectionalLight(0xffffff,.55); sun.position.set(120,220,160); scene.add(sun);
+const fill=new THREE.DirectionalLight(0xffffff,.18); fill.position.set(-150,80,-120); scene.add(fill);
+
+/* toon gradient: flat 3-tone shading = vector look */
+const grad=new THREE.DataTexture(new Uint8Array([120,200,255]),3,1,THREE.LuminanceFormat);
+grad.minFilter=grad.magFilter=THREE.NearestFilter; grad.needsUpdate=true;
+
+/* silhouette outline (inverted hull) */
+const outlineU={t:{value:.3},c:{value:new THREE.Color(C.ink)}};
+const outlineMat=new THREE.ShaderMaterial({uniforms:outlineU,side:THREE.BackSide,
+  vertexShader:'uniform float t;void main(){vec3 p=position+normal*t;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}',
+  fragmentShader:'uniform vec3 c;void main(){gl_FragColor=vec4(c,1.0);}'});
+const edgeMat=new THREE.LineBasicMaterial({color:C.ink,transparent:true,opacity:.55});
+
+/* ---------- part registry ---------- */
+let REG; // current view registry while building
+function M(color,part,opts={}){
+  const m=new THREE.MeshToonMaterial(Object.assign({color,gradientMap:grad},opts));
+  if(part){(REG.parts[part]=REG.parts[part]||[]).push(m);}
+  return m;
+}
+function add(geo,mat,parent,{pos,rot,edges=0,outline=true}={}){
+  const me=new THREE.Mesh(geo,mat);
+  if(outline&&!mat.transparent) me.add(new THREE.Mesh(geo,outlineMat));
+  if(edges) me.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo,edges),edgeMat));
+  if(pos) me.position.set(...pos);
+  if(rot) me.rotation.set(...rot);
+  parent.add(me); return me;
+}
+function rbox(w,h,d,r){
+  r=Math.min(r,w/2-.01,h/2-.01,d/2-.01);
+  const s=new THREE.Shape(),x=-(w/2-r),y=-(h/2-r),W=w-2*r,H=h-2*r,q=Math.min(r,W/2,H/2)*.0001;
+  s.moveTo(x,y);s.lineTo(x+W,y);s.lineTo(x+W,y+H);s.lineTo(x,y+H);s.lineTo(x,y);
+  const g=new THREE.ExtrudeGeometry(s,{depth:Math.max(d-2*r,.01),bevelEnabled:true,bevelThickness:r,bevelSize:r,bevelSegments:3,curveSegments:4});
+  g.center(); return g;
+}
+function box(w,h,d,mat,parent,pos,r=.6,opt={}){return add(rbox(w,h,d,r),mat,parent,Object.assign({pos,edges:40},opt));}
+function tube(a,b,r,mat,parent){
+  const A=new THREE.Vector3(...a),B=new THREE.Vector3(...b);
+  const g=new THREE.CylinderGeometry(r,r,A.distanceTo(B),16);
+  const me=add(g,mat,parent);
+  me.position.copy(A).add(B).multiplyScalar(.5);
+  me.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),B.clone().sub(A).normalize());
+  return me;
+}
+function wheel(parent,c,R,tr,side,{spokes=0,handrim=false,tireMat,hubMat,hubR}={}){
+  const g=new THREE.Group(); g.position.set(...c); g.rotation.y=Math.PI/2; parent.add(g);
+  add(new THREE.TorusGeometry(R-tr,tr,12,56),tireMat,g);
+  if(spokes){
+    const rimM=M(C.rim);
+    add(new THREE.TorusGeometry(R-tr*2.1,.5,8,56),rimM,g);
+    for(let i=0;i<spokes;i++){const a=i/spokes*Math.PI*2;tube([0,0,(i%2?1:-1)*1.2],[Math.cos(a)*(R-tr*2.1),Math.sin(a)*(R-tr*2.1),0],.18,rimM,g);}
+  }
+  const hr=hubR||R*.12;
+  add(new THREE.CylinderGeometry(hr,hr,tr*1.6,24),hubMat||M(C.navy),g,{rot:[Math.PI/2,0,0]});
+  if(handrim){
+    const hm=M(C.silver);
+    add(new THREE.TorusGeometry(R-tr*3.2,.55,8,56),hm,g,{pos:[0,0,side*4]});
+    for(let i=0;i<6;i++){const a=i/6*Math.PI*2,rr=R-tr*3.2;tube([Math.cos(a)*rr,Math.sin(a)*rr,side*4],[Math.cos(a)*rr,Math.sin(a)*rr,side*1],.35,hm,g);}
+  }
+  return g;
+}
+function ground(parent,r){
+  const m=new THREE.MeshBasicMaterial({color:C.ground});
+  const d=new THREE.Mesh(new THREE.CircleGeometry(r,64),m); d.rotation.x=-Math.PI/2; d.position.y=-.05; parent.add(d);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(r-.4,r,64),new THREE.MeshBasicMaterial({color:0xD3D7CF})); ring.rotation.x=-Math.PI/2; ring.position.y=0; parent.add(ring);
+}
+function anchor(parent,pos,key,text,color){
+  const o=new THREE.Object3D(); o.position.set(...pos); parent.add(o);
+  REG.anchors.push({o,key,text,color}); return o;
+}
+
+/* ---------- the tag ---------- */
+const SENS=[5,10,20,30];       // floor-referenced heights (cm)
+const PROBE_BOTTOM=2, PROBE_LEN=42;
+function makeProbe(parent,{pos,rotY=0,clampYs,stub=false}){
+  const g=new THREE.Group(); g.position.set(pos[0],PROBE_BOTTOM,pos[2]); g.rotation.y=rotY; parent.add(g);
+  const body=M(C.light,'probe'), cap=M(C.ink,'probe');
+  box(2.8,PROBE_LEN,1.5,body,g,[0,PROBE_LEN/2,0],.6);
+  box(3.2,2.6,2,cap,g,[0,PROBE_LEN+.6,0],.6);       // cable gland
+  box(3.2,1.4,2,cap,g,[0,.5,0],.5);                  // rubber foot
+  SENS.forEach(h=>{
+    const m=M(C.gray,'probe',{emissive:0x000000});
+    box(2.1,2.6,.5,m,g,[0,h-PROBE_BOTTOM,.85],.2);
+    REG.sensors.push({m,h});
+  });
+  const clampM=M(C.silver,'clamp'), padM=M(C.navy,'clamp');
+  clampYs.forEach(y=>{
+    box(2.2,2.2,1.2,padM,g,[0,y,-1.3],.3);
+    add(new THREE.TorusGeometry(1.75,.32,8,28),clampM,g,{pos:[0,y,-2.6],rot:[Math.PI/2,0,0]});
+  });
+  if(stub){ tube([0,6,-2.6],[0,PROBE_LEN-2,-2.6],1.2,M(C.silver),g); }
+  anchor(g,[0,PROBE_LEN*.62,1],'probe','물 감지 막대',C.light);
+  anchor(g,[0,clampYs[clampYs.length-1],-2.6],'clamp','밴드 클램프',C.silver);
+  return g;
+}
+function makeMain(parent,{pos,rotY=0,stub=false}){
+  const g=new THREE.Group(); g.position.set(...pos); g.rotation.y=rotY; parent.add(g);
+  box(9,6,3,M(C.ink,'main'),g,[0,0,0],1.1);
+  box(9.15,1.1,3.15,M(C.blue,'main'),g,[0,-1.3,0],.4);            // blue band
+  add(new THREE.CylinderGeometry(.55,.55,.4,20),M(C.green,'main',{emissive:C.green,emissiveIntensity:.5}),g,{pos:[3.2,1.6,1.55],rot:[Math.PI/2,0,0]});
+  add(new THREE.CylinderGeometry(1.1,1.1,.3,24),M(C.navy,'main'),g,{pos:[-2.4,1,1.55],rot:[Math.PI/2,0,0]}); // SOS / status button
+  box(4.4,3.4,.9,M(C.navy,'main'),g,[0,0,-1.95],.3);                 // mounting bracket
+  box(1.6,1,1.4,M(C.navy,'main'),g,[0,-3.4,0],.3);                   // cable gland
+  if(stub){ tube([-8,0,-3.4],[8,0,-3.4],1,M(C.silver),g); }
+  anchor(g,[4.5,1,0],'main','본체 · 통신/배터리',C.ink);
+  return g;
+}
+function makePad(parent,{pos,w,d}){
+  const g=new THREE.Group(); g.position.set(...pos); parent.add(g);
+  box(w,.6,d,M(C.soft,'pad'),g,[0,0,0],.25);
+  const cellM=M(C.blueL,'pad');
+  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++) box(w/3-2.2,.25,d/3-2.2,cellM,g,[i*w/3,.4,j*d/3],.1,{outline:false});
+  anchor(g,[w/2-2,.5,d/2-2],'pad','착석 감지 패드',C.soft);
+  return g;
+}
+function makeCable(parent,pts,at=.45){
+  const curve=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p)));
+  const me=add(new THREE.TubeGeometry(curve,64,.35,8,false),M(C.ink,'cable'),parent);
+  anchor(parent,curve.getPoint(at).toArray(),'cable','방수 케이블',C.ink);
+  return me;
+}
+function makeWater(parent,size){
+  const m=new THREE.MeshLambertMaterial({color:C.water,transparent:true,opacity:.14,depthWrite:false});
+  const w=new THREE.Mesh(new THREE.CylinderGeometry(size,size,1,64),m); w.position.y=.5; w.visible=false; parent.add(w);
+  const topM=new THREE.MeshBasicMaterial({color:C.water,transparent:true,opacity:.18,depthWrite:false,side:THREE.DoubleSide});
+  const top=new THREE.Mesh(new THREE.CircleGeometry(size,64),topM); top.rotation.x=-Math.PI/2; top.visible=false; parent.add(top);
+  REG.water={w,top};
+}
+
+/* ---------- views ---------- */
+const VIEWS={};
+function view(key,cfg,build){
+  REG={key,group:new THREE.Group(),parts:{},anchors:[],sensors:[],water:null,...cfg};
+  build(REG.group); scene.add(REG.group); REG.group.visible=false; VIEWS[key]=REG;
+}
+
+view('tag',{target:[0,24,-4],dist:165,outline:.13},g=>{
+  ground(g,58);
+  makeProbe(g,{pos:[-13,0,4],clampYs:[8,22,36],stub:true});
+  makeMain(g,{pos:[14,32,4],stub:true});
+  makeCable(g,[[-13,46.2,4],[-12,50,4.5],[-2,51,5],[9,42,5],[14,27.2,4]]);
+  makePad(g,{pos:[0,.35,-28],w:32,d:28});
+  makeWater(g,58);
+});
+
+view('manual',{target:[0,46,0],dist:300,outline:.3},g=>{
+  ground(g,95);
+  const frame=M(C.silver), uph=M(C.navy), tire=M(C.tire);
+  [-1,1].forEach(s=>{
+    const x=s*21;
+    tube([x,48,-18],[x,48,24],1.2,frame,g);              // seat rail
+    tube([x,48,22.5],[x,16,22.5],1.2,frame,g);           // front upright
+    tube([x,16,22.5],[x,16,-16],1.2,frame,g);            // lower rail
+    tube([x,16,-16],[x,92,-19.5],1.2,frame,g);           // back post
+    tube([x,92,-19.5],[x,93,-24],1.2,frame,g);
+    tube([x,93,-24],[x,93.2,-29],1.6,uph,g);             // grip
+    tube([x,46,23],[s*14,12,33],1.1,frame,g);            // leg hanger
+    box(13,1.2,11,uph,g,[s*9,12,34.5],.4);               // footplate
+    tube([x,30,-14],[s*26,30,-14],1,frame,g);            // axle
+    wheel(g,[s*26.5,30,-14],30,1.5,s,{spokes:18,handrim:true,tireMat:tire});
+    tube([x,16,22.5],[s*19,16,26],1,frame,g);
+    tube([s*19,16,26],[s*19,7.5,28],.8,frame,g);         // caster fork
+    wheel(g,[s*19,7.5,28],7.5,1.5,s,{tireMat:tire,hubR:1.5});
+    tube([x,64,-18.6],[x,64,-12],1,frame,g);             // armrest-less side guard stub
+  });
+  tube([-21,47,0],[21,17,0],1,frame,g); tube([21,47,0],[-21,17,0],1,frame,g); // X brace
+  tube([-21,80,-19],[21,80,-19],1,frame,g);                                   // back cross bar
+  box(42,1.6,40,uph,g,[0,49.2,3],.6);                                          // seat sling
+  box(42,32,1.4,uph,g,[0,70,-18.6],.5);                                        // back sling
+  // tag
+  makeProbe(g,{pos:[23.6,0,22.5],rotY:Math.PI/2,clampYs:[18,30,40]});
+  makeMain(g,{pos:[0,80,-23.4],rotY:Math.PI});
+  makeCable(g,[[23.6,46.2,22.5],[23.5,49.5,18],[22.8,50,-6],[22.5,58,-17],[12,72,-21.5],[0,76.7,-23.4]],.78);
+  makePad(g,{pos:[0,50.4,3],w:36,d:34});
+  const cush=new THREE.Mesh(rbox(40,6,38,2.5),new THREE.MeshToonMaterial({color:C.blue,gradientMap:grad,transparent:true,opacity:.28,depthWrite:false}));
+  cush.position.set(0,53.8,3); g.add(cush);
+  makeWater(g,95);
+});
+
+view('power',{target:[0,56,0],dist:320,outline:.3},g=>{
+  ground(g,95);
+  const navy=M(C.navy), blue=M(C.blue), frame=M(C.silver), tire=M(C.tire), ink=M(C.ink);
+  box(44,20,50,navy,g,[0,22,0],4);                       // power base
+  box(44.6,3.5,46,blue,g,[0,27,0],1.4);                  // shroud stripe
+  tube([0,32,0],[0,45,0],3.5,frame,g);                   // seat post
+  [-1,1].forEach(s=>{
+    wheel(g,[s*27.5,17,0],17,3,s,{tireMat:tire,hubR:9,hubMat:M(C.navy)});
+    [31,-31].forEach(z=>{
+      tube([s*15,14,z*.78],[s*15,14,z*.92],1,frame,g);
+      tube([s*15,14,z*.92],[s*15,7,z],.9,frame,g);
+      wheel(g,[s*15,7,z],7,2,s,{tireMat:tire,hubR:1.6});
+    });
+    tube([s*20,46,24],[s*20,46,30],1.2,frame,g);         // leg-rest hanger
+    tube([s*20,46,30],[s*20,14,30],1.2,frame,g);
+    tube([s*20,14,30],[s*16,13.5,33],1,frame,g);
+    box(16,1.4,12,navy,g,[s*10,13.5,35],.6);             // footplate
+    tube([s*18,48,-22],[s*18,58,-22],1.5,frame,g);       // back post
+    tube([s*25,47,-10],[s*27,48,-10],1.2,frame,g);
+    tube([s*27,48,-10],[s*27,64.5,-10],1.3,frame,g);     // armrest post
+    box(6,3.5,34,navy,g,[s*27,66,2],1.5);                // armrest
+  });
+  box(50,3,52,navy,g,[0,46.5,2],1);                      // seat pan
+  box(48,55,8,blue,g,[0,83,-22],4);                      // backrest
+  tube([0,110,-23],[0,116,-23],1,frame,g);
+  box(26,11,6,navy,g,[0,121,-22.5],3);                   // headrest
+  box(7,4,10,ink,g,[-27,69.6,16],1.5);                   // joystick box
+  tube([-27,71.5,17],[-27,76,17],.5,frame,g);
+  add(new THREE.SphereGeometry(1.5,16,12),ink,g,{pos:[-27,77,17]});
+  // tag
+  makeProbe(g,{pos:[22.6,0,30],rotY:Math.PI/2,clampYs:[16,28,40]});
+  makeMain(g,{pos:[14,92,-27.6],rotY:Math.PI});
+  makeCable(g,[[22.6,46.2,30],[23.5,48,24],[25.5,44.5,10],[25.5,44.5,-18],[20,62,-26.6],[14,88.7,-27.6]],.8);
+  makePad(g,{pos:[0,48.4,2],w:44,d:44});
+  const cush=new THREE.Mesh(rbox(48,7,48,2.5),new THREE.MeshToonMaterial({color:C.blue,gradientMap:grad,transparent:true,opacity:.3,depthWrite:false}));
+  cush.position.set(0,52.4,2); g.add(cush);
+  makeWater(g,95);
+});
+
+/* ---------- side panel content ---------- */
+const PART_INFO={
+  main:{name:'본체 · 통신/배터리',color:'#16202B',d:'9 × 6 × 3 cm · 난연 PC 외장 · IP68 · LTE-M/NB-IoT + BLE · 별도 배터리 · 상태 LED와 SOS 버튼'},
+  probe:{name:'물 감지 막대',color:'#EEF2F5',d:'길이 42 cm · 정전용량 센서 4칸(5·10·20·30 cm) · 전극을 외장 안에 넣어 하수 오염·부식 차단'},
+  clamp:{name:'밴드 클램프',color:'#B4BCC4',d:'스테인리스 밴드 + 실리콘 패드 · 구멍 없이 지름 19~25 mm 프레임에 고정'},
+  cable:{name:'방수 케이블',color:'#16202B',d:'PUR 피복 · 방수 커넥터 · 시트 레일을 따라 배선해 바퀴·브레이크와 간섭 없음'},
+  pad:{name:'착석 감지 패드',color:'#E3ECF8',d:'두께 4~6 mm 압력 시트 · 방석 아래 · 사용자가 휠체어에서 분리되면 감지'}
+};
+const VIEW_TEXT={
+  tag:{title:'태그 구성',sub:'아래는 물을 느끼고, 위는 끝까지 신호를 보내는 분리형 구조',
+    notes:['<b>분리형</b> · 감지 막대는 낮게, 전자부품은 물에 잠기지 않는 높이에',
+           '<b>외장</b> · 난연(UL94 V-0) 폴리카보네이트, 금속 외장은 전파를 막아 제외',
+           '<b>방수</b> · IP67 이상, 실리콘 개스킷·초음파 용착, 기판 코팅/포팅',
+           '<b>통신</b> · 정전 시에도 동작하는 LTE-M/NB-IoT, 워치와는 BLE',
+           '<b>위치</b> · 반지하 GPS 음영 → 집 안 BLE/UWB 기준점으로 방 단위 위치',
+           '<b>오작동 방지</b> · 바닥 센서와 함께 감지될 때만 "지금 대피"로 격상']},
+  manual:{title:'수동휠체어 장착',sub:'접이식 프레임 · 큰 뒷바퀴와 핸드림을 피해서 배치',
+    notes:['<b>막대</b> · 앞쪽 수직 프레임 바깥, 캐스터 회전 반경 밖',
+           '<b>본체</b> · 등받이 뒤 가로 프레임 중앙, 바퀴를 미는 손과 겹치지 않게',
+           '<b>케이블</b> · 시트 레일 → 등받이 기둥을 따라 고정',
+           '<b>패드</b> · 시트 슬링과 방석 사이',
+           '<b>주의</b> · 접을 때 X자 브레이스 움직임에 케이블이 끼지 않도록 여유 길이']},
+  power:{title:'전동휠체어 장착',sub:'무거운 파워베이스 · 조이스틱 반대편에 배치',
+    notes:['<b>막대</b> · 발받침 행거(수직 구간) 바깥, 앞 캐스터와 간섭 없음',
+           '<b>본체</b> · 등받이 뒤 상단, 조이스틱 반대편 · 몸을 옮겨 앉는 동선 밖',
+           '<b>전원</b> · 휠체어 배터리는 침수 시 꺼질 수 있어 본체 배터리 별도, 평소 충전 단자로 보조 충전',
+           '<b>케이블</b> · 시트 아래를 따라 배선, 틸트·리클라인 동작 여유 확보',
+           '<b>기록</b> · 잠긴 높이·시간을 저장해 보조기기 재지급 근거로 활용']}
+};
+
+/* ---------- state & UI ---------- */
+let cur=null, theta=35*D2R, phi=16*D2R, zoom=1, auto=true, level=0;
+const labelsEl=document.getElementById('labels'), partsEl=document.getElementById('parts');
+let labelEls=[];
+function setHighlight(key){
+  Object.values(VIEWS).forEach(v=>Object.entries(v.parts).forEach(([k,ms])=>ms.forEach(m=>{
+    if(m.userData.baseE===undefined){m.userData.baseE=m.emissive.getHex();m.userData.baseI=m.emissiveIntensity;}
+    if(k===key){m.emissive.setHex(C.blue);m.emissiveIntensity=.45;}
+    else{m.emissive.setHex(m.userData.baseE);m.emissiveIntensity=m.userData.baseI;}
+  })));
+  labelEls.forEach(l=>l.el.classList.toggle('hi',l.key===key));
+  [...partsEl.children].forEach(li=>li.classList.toggle('hi',li.dataset.k===key));
+  applyWater(); // keep wet sensors blue
+}
+function show(key){
+  if(cur) cur.group.visible=false;
+  cur=VIEWS[key]; cur.group.visible=true;
+  outlineU.t.value=cur.outline; zoom=1;
+  document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.v===key)));
+  const tx=VIEW_TEXT[key];
+  document.getElementById('pTitle').textContent=tx.title;
+  document.getElementById('pSub').textContent=tx.sub;
+  document.getElementById('notes').innerHTML=tx.notes.map(n=>`<li>${n}</li>`).join('');
+  const keys=['main','probe','clamp','cable','pad'].filter(k=>cur.parts[k]);
+  partsEl.innerHTML=keys.map(k=>`<li data-k="${k}"><b><i style="background:${PART_INFO[k].color}"></i>${PART_INFO[k].name}</b><small>${PART_INFO[k].d}</small></li>`).join('');
+  [...partsEl.children].forEach(li=>{li.onmouseenter=()=>setHighlight(li.dataset.k);li.onmouseleave=()=>setHighlight(null);});
+  labelsEl.innerHTML='';
+  labelEls=cur.anchors.map(a=>{const el=document.createElement('div');el.className='lbl';el.innerHTML=`<i style="background:#${a.color.toString(16).padStart(6,'0')};border:1px solid rgba(22,32,43,.4)"></i>${a.text}`;labelsEl.appendChild(el);return{...a,el};});
+  applyWater();
+}
+function applyWater(){
+  Object.values(VIEWS).forEach(v=>{
+    v.sensors.forEach(s=>{const wet=level>=s.h;s.m.color.setHex(wet?C.blue:C.gray);s.m.emissive.setHex(wet?C.blue:0);s.m.emissiveIntensity=wet?.5:1;});
+    if(v.water){v.water.w.visible=v.water.top.visible=level>0;v.water.w.scale.y=Math.max(level,.01);v.water.w.position.y=level/2;v.water.top.position.y=level;}
+  });
+  document.getElementById('wVal').textContent=level+' cm';
+  const spans=[...document.getElementById('sens').children];
+  SENS.forEach((h,i)=>spans[i].classList.toggle('wet',level>=h));
+  const n=SENS.filter(h=>level>=h).length, st=document.getElementById('wState');
+  st.className='state'+(n?' warn':'');
+  st.textContent=n===0?'정상 · 물 감지 없음':n===1?'물 감지 · 바닥 센서와 교차 확인 중':n<4?`센서 ${n}칸 감지 · "지금 대피" 단계`:'바퀴 높이 이상 침수 · 구조 요청 · 휠체어 점검 필요';
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>show(t.dataset.v));
+document.getElementById('wl').oninput=e=>{level=+e.target.value;applyWater();};
+const rot=document.getElementById('rot'), rotOut=document.getElementById('rotOut'), autoB=document.getElementById('auto');
+function setAuto(v){auto=v;autoB.classList.toggle('on',v);}
+autoB.onclick=()=>setAuto(!auto);
+rot.oninput=()=>{setAuto(false);theta=rot.value*D2R;};
+const PRESET={front:[0,10],side:[90,10],back:[180,10],top:[35,72]};
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{setAuto(false);const[t,p]=PRESET[b.dataset.view];theta=t*D2R;phi=p*D2R;});
+const showLbl=document.getElementById('showLbl');
+showLbl.onchange=()=>labelsEl.style.display=showLbl.checked?'':'none';
+
+/* orbit by drag / pinch / wheel */
+const ptrs=new Map(); let pinch0=0, zoom0=1;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.classList.add('drag');setAuto(false);
+  if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=zoom;}});
+canvas.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return;
+  const p=ptrs.get(e.pointerId), dx=e.clientX-p.x, dy=e.clientY-p.y; p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0)zoom=Math.min(1.6,Math.max(.45,zoom0*pinch0/d));return;}
+  theta-=dx*.008; phi=Math.min(80*D2R,Math.max(-4*D2R,phi+dy*.006));
+});
+['pointerup','pointercancel'].forEach(ev=>canvas.addEventListener(ev,e=>{ptrs.delete(e.pointerId);if(!ptrs.size)canvas.classList.remove('drag');pinch0=0;}));
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.min(1.6,Math.max(.45,zoom*(1+e.deltaY*.001)));},{passive:false});
+
+/* resize */
+let W=1,H=1;
+function resize(){W=stage.clientWidth;H=stage.clientHeight;renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage); resize();
+
+/* loop */
+const v3=new THREE.Vector3(), ray=new THREE.Raycaster(); let last=performance.now();
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000); last=now;
+  if(auto) theta+=dt*.45;
+  const t=cur.target, narrow=W/H<1?1.35:1, d=cur.dist*zoom*narrow;
+  camera.position.set(t[0]+d*Math.cos(phi)*Math.sin(theta),t[1]+d*Math.sin(phi),t[2]+d*Math.cos(phi)*Math.cos(theta));
+  camera.lookAt(t[0],t[1],t[2]);
+  renderer.render(scene,camera);
+  const deg=Math.round(((theta/D2R)%360+360)%360);
+  if(document.activeElement!==rot){rot.value=deg;} rotOut.textContent=deg+'°';
+  labelEls.forEach(l=>{l.o.getWorldPosition(v3);
+    const dist=v3.distanceTo(camera.position);
+    ray.set(camera.position,v3.clone().sub(camera.position).normalize());
+    const hit=ray.intersectObject(cur.group,true).find(h=>h.object.material&&h.object.material!==outlineMat&&!h.object.material.transparent&&h.object.isMesh);
+    const hidden=hit&&hit.distance<dist-2.5;
+    v3.project(camera);
+    l.el.style.opacity=v3.z>=1?0:hidden?.3:1;
+    l.el.style.left=((v3.x+1)/2*W)+'px'; l.el.style.top=((1-v3.y)/2*H)+'px';});
+  requestAnimationFrame(frame);
+}
+const q=new URLSearchParams(location.search);
+if(q.get('lv')){level=+q.get('lv');document.getElementById('wl').value=level;}
+if(q.get('a')){setAuto(false);theta=+q.get('a')*D2R;}
+show(VIEWS[q.get('v')]?q.get('v'):'tag');
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
