@@ -51,6 +51,15 @@ main{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;padding:16p
 .stage:-webkit-full-screen{width:100%;height:100%;min-height:0;border:0;border-radius:0}
 .stage.full{position:fixed;inset:0;top:0;width:100vw;height:100vh;height:100dvh;align-self:stretch;min-height:0;border:0;border-radius:0;z-index:1000}
 body.nofs-scroll{overflow:hidden}
+.fswater{position:absolute;left:50%;top:10px;transform:translateX(-50%);width:max-content;z-index:4;display:none;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;max-width:calc(100% - 260px);background:rgba(252,252,250,.95);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.stage.full .fswater,.stage:fullscreen .fswater{display:flex}
+.fswater label{font-size:12px;font-weight:700;color:var(--muted)}
+.fswater input[type=range]{width:160px}
+.fswater output{font-size:13px;font-weight:700;min-width:44px;text-align:right;font-variant-numeric:tabular-nums}
+.fswater .btn.wet{background:var(--blue);border-color:var(--blue);color:#fff}
+.fswater .fst{font-size:12px;font-weight:700;border-radius:8px;padding:5px 10px;background:#e3f3ea;color:#1d6b45}
+.fswater .fst.warn{background:var(--blue);color:#fff}
+@media (max-width:640px){.fswater{left:12px;right:12px;top:52px;transform:none;width:auto;max-width:none}.fswater input[type=range]{width:110px}}
 .hint{position:absolute;left:14px;top:12px;font-size:12px;color:var(--muted);background:rgba(252,252,250,.9);border-radius:8px;padding:3px 8px;pointer-events:none}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
 .panel h3{margin:0 0 4px;font-size:15px}
@@ -104,6 +113,11 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
     <canvas id="gl" aria-label="휠체어 태그 3D 모델. 드래그해서 돌려볼 수 있습니다."></canvas>
     <div class="labels" id="labels"></div>
     <button class="fsbtn" id="fsBtn" type="button" aria-label="전체 화면으로 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path class="i-open" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path class="i-close" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5" style="display:none"/></svg><span>전체 화면</span></button>
+    <div class="fswater" id="fsWater">
+      <label for="wl2">수위</label><input type="range" id="wl2" min="0" max="40" value="0"><output id="wVal2">0 cm</output>
+      <button class="btn" data-lv="5">5cm</button><button class="btn" data-lv="10">10cm</button><button class="btn" data-lv="20">20cm</button><button class="btn" data-lv="30">30cm</button>
+      <span class="fst" id="wState2">정상 · 물 감지 없음</span>
+    </div>
     <div class="hint">드래그로 회전 · 휠/핀치로 확대</div>
     <div class="hud">
       <div class="ctrl"><label for="rot">회전</label><input type="range" id="rot" min="0" max="359" value="35"><output id="rotOut">35°</output></div>
@@ -601,9 +615,15 @@ function applyWater(){
   st.textContent=n===0?'정상 · 물 감지 없음':n===1?'물 감지 · 바닥 센서와 교차 확인 중':n<4?`센서 ${n}칸 감지 · "지금 대피" 단계`:'바퀴 높이 이상 침수 · 구조 요청 · 휠체어 점검 필요';
   const col=n>=2?[0xff2a1e,0xff5a50]:n===1?[0xff9a10,0xffc040]:[0x12e07f,0x40ffa8];   // status LED follows the alert level
   ledMat.emissive.setHex(col[0]); glowMat.color.setHex(col[1]);
+  document.getElementById('wl').value=level;document.getElementById('wl2').value=level;
+  document.getElementById('wVal2').textContent=level+' cm';
+  const st2=document.getElementById('wState2');st2.className='fst'+(n?' warn':'');st2.textContent=st.textContent;
+  document.querySelectorAll('[data-lv]').forEach(b=>b.classList.toggle('wet',level>=+b.dataset.lv));
 }
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>show(t.dataset.v));
 document.getElementById('wl').oninput=e=>{level=+e.target.value;applyWater();};
+document.getElementById('wl2').oninput=e=>{level=+e.target.value;applyWater();};
+document.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{const v=+b.dataset.lv;level=level===v?0:v;applyWater();});
 const rot=document.getElementById('rot'), rotOut=document.getElementById('rotOut'), autoB=document.getElementById('auto');
 function setAuto(v){auto=v;autoB.classList.toggle('on',v);}
 autoB.onclick=()=>setAuto(!auto);
