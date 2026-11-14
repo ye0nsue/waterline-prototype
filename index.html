@@ -42,7 +42,13 @@ main.focus [data-role].lit{opacity:1;filter:none}
 .btn.ghost{background:transparent;border:1px solid #8A949E;color:#F4F5F1}
 .btn.lite{background:#fff;color:var(--ink);border:1px solid var(--line)}
 .btn.warn{background:var(--orange)}
-main{display:grid;grid-template-columns:300px 1fr 340px;gap:16px;padding:16px 24px 32px}
+main{display:grid;grid-template-columns:300px minmax(0,1fr) 340px;grid-template-areas:"left map helper" "left dash helper";align-items:stretch;gap:16px;padding:16px 24px 32px}
+main>.col{grid-area:left}
+main>.col>.panel:first-child{flex:1;display:flex;flex-direction:column}
+main>.col>.panel:first-child .watch{margin-top:auto;margin-bottom:auto}
+.pmap{grid-area:map}
+.phelp{grid-area:helper;display:flex;flex-direction:column}
+.phelp .phone{flex:1}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
 .panel h3{margin:0 0 4px;font-size:15px}
 .panel .sub{margin:0 0 12px;font-size:12px;color:var(--muted)}
@@ -102,12 +108,12 @@ input[type=range]{width:100%}
 .box li{margin:2px 0}
 .check li{list-style:none;margin-left:-18px}
 .hide{display:none!important}
-.dash{grid-column:1/-1;margin:15px}
+.dash{grid-area:dash}
 .dtable{width:100%;border-collapse:collapse;font-size:13px}
 .dtable th,.dtable td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
 .dtable th{color:var(--muted);font-weight:500}
 footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
-@media (max-width:1180px){main{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1180px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:"left" "map" "helper" "dash"}}
 @media (max-width:640px){
   body{font-size:14px}
   header{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:12px;padding:18px 16px 16px}
@@ -119,6 +125,8 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   .persona img{grid-column:2;grid-row:1;align-self:center;height:75px;width:auto}
   .roles{padding:12px 16px 0;gap:6px}
   .role{flex-direction:column;gap:4px;font-size:12px;padding:8px 6px;white-space:normal;text-align:center;line-height:1.3}
+  main.focus [data-role]:not(.lit){display:none}
+  main.focus>.col:not(:has(.lit)){display:none}
   .stepper{padding:10px 16px;gap:6px}
   .step{min-width:118px;padding:6px 10px}
   .narr{margin:12px 16px 0;padding:12px 14px;flex-wrap:wrap;gap:10px}
@@ -132,7 +140,6 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   .watch{width:200px;height:240px}
   .facts{grid-template-columns:1fr}
   .phone{min-height:0;border-width:8px;border-radius:24px}
-  .dash{margin:0}
   .dtable{display:block;overflow-x:auto;white-space:nowrap}
   footer{padding:0 16px 20px}
 }
@@ -190,7 +197,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   </div>
 
   <!-- CENTER: escape map -->
-  <div data-role="helper platform" class="panel">
+  <div data-role="helper platform" class="panel pmap">
     <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px">
       <div style="flex:1 1 260px;min-width:0"><h3>③ 반지하 탈출 지도 (스캔 데이터)</h3>
       <p class="sub">지자체 반지하 상태 조사 방문 시 동의 후 LiDAR·광학 스캔 · 사람은 지우고 공간 구조만 저장</p></div>
@@ -299,7 +306,7 @@ footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
   </div>
 
   <!-- RIGHT: helper app -->
-  <div data-role="helper" class="panel">
+  <div data-role="helper" class="panel phelp">
     <h3>④ 조력자 앱</h3>
     <p class="sub">동행파트너 · 활동지원사 · 이웃 · 복지관 담당자</p>
     <div class="phone">
