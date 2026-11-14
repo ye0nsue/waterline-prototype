@@ -2,522 +2,372 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WATERLINE MVP 프로토타입</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WATERLINE 휠체어 태그 · 제품 목업</title>
 <style>
-:root{
-  --bg:#F4F5F1; --card:#FCFCFA; --ink:#16202B; --muted:#56616D; --line:#D9DDD6;
-  --blue:#1F5FBF; --blue-soft:#E3ECF8; --amber:#8A6300; --amber-soft:#FBF1D6;
-  --orange:#B8471A; --orange-soft:#FBE6DB; --green:#1D6B4F; --green-soft:#DDEFE6;
-  --water:rgba(31,95,191,.28);
-}
+:root{--bg:#f4f4f1;--ink:#16202B;--mute:#6b7682;--line:rgba(22,32,43,.12);--card:rgba(255,255,255,.78);--blue:#1F5FBF}
+body.dark{--bg:#0f1317;--ink:#eef2f5;--mute:#93a0ad;--line:rgba(255,255,255,.14);--card:rgba(24,30,37,.78)}
 *{box-sizing:border-box}
-body{margin:0;font-family:'Noto Sans KR',Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;word-break:keep-all;overflow-wrap:break-word}
-header{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid var(--line);background:var(--card)}
-.brand{display:flex;align-items:baseline;gap:12px}
-.brand b{font-size:22px;font-weight:900;letter-spacing:.04em;color:var(--blue)}
-.brand span{color:var(--muted);font-size:14px}
-.persona{font-size:13px;color:var(--muted);text-align:right;display:flex;align-items:center;gap:10px}
-.persona img{height:39px;height:2lh;width:auto;flex:none;transform:scaleX(-1)}
-.roles{display:flex;gap:8px;padding:14px 24px 0;background:var(--card)}
-.role{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-size:14px;font-weight:700;white-space:nowrap;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);cursor:pointer;transition:background .2s,border-color .2s,color .2s}
-.role svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.role:hover{border-color:var(--blue)}
-.role[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:#fff}
-main [data-role]{transition:opacity .25s,filter .25s}
-main.focus [data-role]{opacity:.75;filter:brightness(.82) saturate(.5)}
-main.focus [data-role].lit{opacity:1;filter:none}
-.stepper{display:flex;gap:8px;padding:14px 24px;background:var(--card);border-bottom:1px solid var(--line);overflow-x:auto}
-.step{flex:1;min-width:150px;display:flex;flex-direction:column;justify-content:flex-start;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:inherit}
-.step small{display:block;color:var(--muted);font-size:12px}
-.step b{font-size:14px}
-.step.on{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue) inset;background:var(--blue-soft)}
-.step .ph{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--blue)}
-.narr{margin:16px 24px 0;padding:14px 18px;border-radius:12px;background:var(--ink);color:#F4F5F1;display:flex;gap:16px;align-items:center}
-.narr .tag{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:#F4F5F1;color:var(--ink);white-space:nowrap}
-.narr p{margin:0;font-size:15px}
-@media (min-width:641px){.narr p{min-height:3em;display:flex;align-items:center}}
-.ctrl{margin-left:auto;display:flex;gap:8px}
-.btn{font:inherit;font-weight:700;white-space:nowrap;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;background:var(--blue);color:#fff}
-.btn.ghost{background:transparent;border:1px solid #8A949E;color:#F4F5F1}
-.btn.lite{background:#fff;color:var(--ink);border:1px solid var(--line)}
-.btn.warn{background:var(--orange)}
-main{display:grid;grid-template-columns:300px minmax(0,1fr) 340px;grid-template-areas:"left map helper" "left dash dash";align-items:stretch;gap:16px;padding:16px 24px 32px}
-main>.col{grid-area:left}
-main>.col>.panel:first-child{flex:1;display:flex;flex-direction:column}
-main>.col>.panel:first-child .watch{margin-top:auto;margin-bottom:auto}
-.pmap{grid-area:map}
-.phelp{grid-area:helper;display:flex;flex-direction:column}
-.phelp .phone{flex:1 1 0;height:0;min-height:0}
-.phelp .ph-body{flex:1;min-height:0;overflow-y:auto}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
-.panel h3{margin:0 0 4px;font-size:15px}
-.panel .sub{margin:0 0 12px;font-size:12px;color:var(--muted)}
-.col{display:flex;flex-direction:column;gap:16px}
-/* watch */
-.watch{width:220px;height:260px;margin:6px auto 4px;border-radius:52px;background:#1B232C;padding:14px;box-shadow:0 0 0 6px #2C3640}
-.face{height:100%;border-radius:40px;background:#0E141A;color:#EEF2F5;padding:16px 14px;display:flex;flex-direction:column;justify-content:space-between;text-align:center;transition:background .3s}
-.face .lvl{font-size:12px;font-weight:700;letter-spacing:.06em;align-self:center;padding:2px 10px;border-radius:99px}
-.face .msg{font-size:16px;font-weight:700;line-height:1.35}
-.face .hint{font-size:11.5px;line-height:1.4;color:#B9C3CC;margin-top:4px}
-.face.l1{background:#2A2208}.face.l1 .lvl{background:#F2C84B;color:#2A2208}
-.face.l2{background:#0F2340}.face.l2 .lvl{background:#7FB0F5;color:#0F2340}
-.face.l3{background:#3A170A}.face.l3 .lvl{background:#F59A6E;color:#3A170A}
-.face.l0 .lvl{background:#3B4652;color:#EEF2F5}
-.face.l4 .lvl,.face.l5 .lvl{background:#8FD3B5;color:#0E2A1F}
-.wbtns{display:flex;gap:6px;justify-content:center}
-.wbtns button{font:inherit;font-size:12px;font-weight:700;border:0;border-radius:99px;padding:6px 10px;cursor:pointer}
-.vib{animation:vib .12s linear 0s 6}
-@keyframes vib{0%{transform:translateX(0)}50%{transform:translateX(2px)}100%{transform:translateX(-2px)}}
-.voice{font-size:12px;color:var(--muted);text-align:center;min-height:18px}
-.sound{font-size:12px;color:var(--muted);text-align:center;min-height:18px;margin-top:2px}
-.sound.play{color:var(--blue);font-weight:700}
-/* sensors */
-.sensor{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px;background:#fff}
-.sensor b{font-size:14px}.sensor small{display:block;color:var(--muted);font-size:12px}
-.val{font-weight:900;font-size:18px}
-.badge{display:inline-block;white-space:nowrap;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--green-soft);color:var(--green)}
-.badge.warn{background:var(--orange-soft);color:var(--orange)}
-.badge.amb{background:var(--amber-soft);color:var(--amber)}
-input[type=range]{width:100%}
-/* center */
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-.tab{font:inherit;font-size:13px;font-weight:700;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 14px;cursor:pointer;white-space:nowrap}
-.tab.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.mapwrap{position:relative;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
-.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;font-size:12px;color:var(--muted)}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-2px}
-.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
-.fact{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;font-size:12px}
-.fact b{display:block;font-size:14px}
-/* helper phone */
-.phone{border:10px solid #1B232C;border-radius:30px;background:#fff;min-height:620px;overflow:hidden;display:flex;flex-direction:column}
-.ph-top{background:var(--ink);color:#fff;padding:12px 14px}
-.ph-top small{color:#B9C3CC;font-size:11px}
-.ph-top b{display:block;font-size:15px}
-.ph-body{padding:12px;display:flex;flex-direction:column;gap:10px;font-size:13px}
-.alert{border-radius:10px;padding:10px 12px;font-weight:700}
-.alert.idle{background:#EEF0EC;color:var(--muted);font-weight:500}
-.alert.amb{background:var(--amber-soft);color:var(--amber)}
-.alert.blue{background:var(--blue-soft);color:var(--blue)}
-.alert.org{background:var(--orange-soft);color:var(--orange)}
-.alert.grn{background:var(--green-soft);color:var(--green)}
-.eta{font-size:34px;font-weight:900;line-height:1}
-.box{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.box h4{margin:0 0 6px;font-size:13px}
-.box ul{margin:0;padding-left:18px}
-.box li{margin:2px 0}
-.check li{list-style:none;margin-left:-18px}
-.hide{display:none!important}
-.dash{grid-area:dash}
-.dtable{width:100%;border-collapse:collapse;font-size:13px}
-.dtable th,.dtable td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
-.dtable th{color:var(--muted);font-weight:500}
-footer{padding:0 24px 24px;color:var(--muted);font-size:12px}
-@media (max-width:1180px){main{grid-template-columns:minmax(0,1fr);grid-template-areas:"left" "map" "helper" "dash"}.phelp .phone{flex:none;height:auto;min-height:620px}.phelp .ph-body{overflow:visible}}
-@media (max-width:640px){
-  body{font-size:14px}
-  header{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:12px;padding:18px 16px 16px}
-  .brand{grid-column:1;grid-row:1;flex-direction:column;gap:4px}
-  .brand b{font-size:28px;line-height:1.1}
-  .brand span{font-size:13px;line-height:1.45}
-  .persona{display:contents}
-  .persona span{grid-column:1 / -1;grid-row:2;font-size:12px;line-height:1.6;text-align:left}
-  .persona img{grid-column:2;grid-row:1;align-self:center;height:75px;width:auto}
-  .roles{padding:12px 16px 0;gap:6px}
-  .role{flex-direction:column;gap:4px;font-size:12px;padding:8px 6px;white-space:normal;text-align:center;line-height:1.3}
-  main.focus [data-role]:not(.lit){display:none}
-  main.focus>.col:not(:has(.lit)){display:none}
-  .stepper{padding:10px 16px;gap:6px}
-  .step{min-width:118px;padding:6px 10px}
-  .narr{margin:12px 16px 0;padding:12px 14px;flex-wrap:wrap;gap:10px}
-  .narr p{flex:1 1 200px;font-size:14px}
-  .ctrl{margin-left:0;width:100%;flex-wrap:wrap}
-  .ctrl .btn{flex:1 1 auto;padding:10px 12px}
-  #mute{flex-basis:100%}
-  main{gap:12px;padding:12px 16px 24px}
-  .col{gap:12px}
-  .panel{padding:14px}
-  .watch{width:200px;height:240px}
-  .facts{grid-template-columns:1fr}
-  .phone{min-height:0;border-width:8px;border-radius:24px}
-  .dtable{display:block;overflow-x:auto;white-space:nowrap}
-  footer{padding:0 16px 20px}
-}
+html,body{height:100%;margin:0}
+body{font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;color:var(--ink);background:var(--bg);overflow:hidden}
+#stage{position:fixed;inset:0;background:radial-gradient(120% 90% at 50% 38%,#ffffff 0%,#f1f1ee 45%,#d9dad5 100%)}
+body.dark #stage{background:radial-gradient(120% 90% at 50% 38%,#2a3139 0%,#161b21 50%,#07090b 100%)}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+canvas.drag{cursor:grabbing}
+header{position:fixed;left:24px;top:20px;z-index:3;pointer-events:none}
+header b{font-size:15px;letter-spacing:.18em;font-weight:800}
+header span{display:block;margin-top:4px;font-size:12px;color:var(--mute)}
+.hint{position:fixed;right:24px;top:22px;font-size:12px;color:var(--mute);z-index:3}
+#labels{position:absolute;inset:0;pointer-events:none;z-index:2}
+.lbl{position:absolute;transform:translate(14px,-50%);padding:5px 10px;border-radius:999px;background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--line);font-size:12px;font-weight:600;white-space:nowrap;transition:opacity .2s}
+.lbl::before{content:"";position:absolute;left:-15px;top:50%;width:7px;height:7px;margin-top:-4px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 3px rgba(31,95,191,.2)}
+.lbl small{display:block;font-weight:400;color:var(--mute);font-size:11px;margin-top:1px}
+.bar{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:3;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:calc(100% - 24px)}
+.grp{display:flex;align-items:center;gap:4px;padding:5px;border-radius:14px;background:var(--card);backdrop-filter:blur(10px);border:1px solid var(--line)}
+button{font:inherit;font-size:12.5px;font-weight:600;color:var(--ink);background:transparent;border:0;border-radius:10px;padding:8px 12px;cursor:pointer}
+button:hover{background:var(--line)}
+button.on{background:var(--ink);color:var(--bg)}
+.grp label{font-size:12.5px;font-weight:600;padding:0 6px 0 10px}
+.grp output{font-size:12.5px;font-weight:700;min-width:46px;text-align:right;padding-right:8px;font-variant-numeric:tabular-nums}
+input[type=range]{width:150px;accent-color:var(--blue)}
+#state{position:fixed;left:24px;bottom:84px;z-index:3;font-size:12.5px;font-weight:600;padding:7px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);backdrop-filter:blur(8px)}
+#state.warn{background:var(--blue);color:#fff;border-color:transparent}
+@media(max-width:640px){.hint{display:none}#state{left:12px;bottom:150px}input[type=range]{width:110px}}
 </style>
 </head>
 <body>
-<header>
-  <div class="brand"><b>WATERLINE</b><span>MVP 프로토타입 · 반지하 휠체어 사용자 집중호우 대응</span></div>
-  <div class="persona"><span>가상 퍼소나 · 정민수(52) · 경수 손상 사지마비 · 전동휠체어<br>서울 관악구 다세대주택 반지하 · 활동지원사 퇴근 후 혼자 있는 밤</span><img src="assets/persona-wheelchair.png" alt="전동휠체어에 앉은 정민수 일러스트"></div>
-</header>
-
-<nav class="roles" id="roles" aria-label="보는 사람 선택">
-  <button class="role" data-role="user" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5 20c0-3.9 3.1-7 7-7s7 3.1 7 7"/></svg>사용자</button>
-  <button class="role" data-role="helper" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="7.5" r="3"/><circle cx="16.5" cy="8.5" r="2.5"/><path d="M2.5 19.5c0-3.3 2.5-6 5.5-6s5.5 2.7 5.5 6"/><path d="M14 13.6c.8-.4 1.6-.6 2.5-.6 2.8 0 5 2.4 5 5.5"/></svg>조력자</button>
-  <button class="role" data-role="platform" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20.5h18"/><path d="M4.5 20.5v-10h15v10"/><path d="M2.5 10.5 12 4l9.5 6.5"/><path d="M8 13.5v4M12 13.5v4M16 13.5v4"/></svg>지자체 · 복지관 플랫폼</button>
-</nav>
-<div class="stepper" id="stepper"></div>
-
-<div class="narr">
-  <span class="tag" id="ntag">예방</span>
-  <p id="ntext"></p>
-  <div class="ctrl">
-    <button class="btn ghost" id="mute" aria-pressed="false" title="워치 알림음 켜기/끄기">🔔 알림음 켜짐</button>
-    <button class="btn ghost" id="prev">이전</button>
-    <button class="btn" id="next">다음 단계</button>
+<div id="stage"><canvas id="gl"></canvas><div id="labels"></div></div>
+<header><b>WATERLINE</b><span>휠체어 태그 · 제품 목업 (단위 cm, 실제 비율)</span></header>
+<div class="hint">드래그로 회전 · 휠/핀치로 확대</div>
+<div id="state">정상 · 물 감지 없음</div>
+<div class="bar">
+  <div class="grp">
+    <button id="auto" class="on">자동 회전</button>
+    <button data-view="hero">전체</button>
+    <button data-view="front">정면</button>
+    <button data-view="side">측면</button>
+    <button data-view="back">후면</button>
+    <button data-view="main">본체 확대</button>
+    <button data-view="probe">센서 확대</button>
   </div>
+  <div class="grp"><label for="wl">수위</label><input id="wl" type="range" min="0" max="34" value="0"><output id="wVal">0 cm</output></div>
+  <div class="grp"><button id="lblB">라벨</button><button id="bgB">어두운 배경</button></div>
 </div>
 
-<main>
-  <!-- LEFT: user devices -->
-  <div class="col">
-    <div data-role="user" class="panel">
-      <h3>① 사용자 워치</h3>
-      <p class="sub">음성·진동 중심 · 손을 쓰지 않아도 됨 · 자는 동안 착용</p>
-      <div class="watch"><div class="face l0" id="face">
-        <span class="lvl" id="wlvl">평상시</span>
-        <div class="msg" id="wmsg"></div>
-        <div>
-          <div class="wbtns" id="wbtns"></div>
-          <div class="hint" id="whint"></div>
-        </div>
-      </div></div>
-      <div class="voice" id="voice"></div>
-      <div class="sound" id="soundLbl"></div>
-    </div>
-    <div data-role="user" class="panel">
-      <h3>② 센서</h3>
-      <p class="sub">바닥 센서는 스캔으로 찾은 역류 지점(싱크대) 옆에 설치</p>
-      <div class="sensor"><div><b>바닥 수위 센서</b><small>주방 싱크대 하수구 옆</small></div><div style="text-align:right"><div class="val" id="sFloor">0 cm</div><span class="badge" id="bFloor">정상</span></div></div>
-      <div class="sensor"><div><b>휠체어 센서 모듈</b><small>바퀴 높이 수위 · 위치 · 분리 감지</small></div><div style="text-align:right"><div class="val" id="sChair">0 cm</div><span class="badge" id="bChair">탑승 중</span></div></div>
-      <label style="font-size:12px;color:var(--muted)">시연용 수위 조절 (집 안 물 높이)</label>
-      <input type="range" id="water" min="0" max="80" value="0">
-      <button class="btn warn" id="inflow" style="width:100%;margin-top:8px">하수관 역류 발생 (물 유입 시연)</button>
-    </div>
-  </div>
-
-  <!-- CENTER: escape map -->
-  <div data-role="user helper platform" class="panel pmap">
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:12px">
-      <div style="flex:1 1 260px;min-width:0"><h3>③ 반지하 탈출 지도 (스캔 데이터)</h3>
-      <p class="sub">지자체 반지하 상태 조사 방문 시 동의 후 LiDAR·광학 스캔 · 사람은 지우고 공간 구조만 저장</p></div>
-      <div class="tabs"><button class="tab on" data-v="plan">평면 · 탈출 지도</button><button class="tab" data-v="sect">단면 · 침수 시뮬레이션</button></div>
-    </div>
-    <div class="mapwrap" id="vplan">
-      <svg viewBox="0 0 760 440" width="100%" role="img" aria-label="반지하 평면 탈출 지도">
-        <defs>
-          <pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="8" stroke="#C9CEC6" stroke-width="2"/></pattern>
-          <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#1F5FBF"/></marker>
-          <marker id="ao" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#B8471A"/></marker>
-        </defs>
-        <rect x="0" y="0" width="760" height="440" fill="#FBFBF9"/>
-        <!-- outer walls -->
-        <rect x="60" y="60" width="560" height="320" fill="#fff" stroke="#16202B" stroke-width="6"/>
-        <!-- water overlay -->
-        <rect id="waterPlan" x="63" y="63" width="554" height="314" fill="var(--water)" opacity="0"/>
-        <!-- rooms -->
-        <line x1="330" y1="60" x2="330" y2="380" stroke="#16202B" stroke-width="4"/>
-        <line x1="470" y1="240" x2="620" y2="240" stroke="#16202B" stroke-width="4"/>
-        <line x1="470" y1="240" x2="470" y2="380" stroke="#16202B" stroke-width="4"/>
-        <rect x="330" y="200" width="6" height="60" fill="#fff"/>
-        <text x="80" y="92" font-size="15" font-weight="700" fill="#16202B">방</text>
-        <text x="350" y="92" font-size="15" font-weight="700" fill="#16202B">거실 · 주방</text>
-        <text x="490" y="272" font-size="15" font-weight="700" fill="#16202B">화장실</text>
-        <!-- bed + user -->
-        <rect x="90" y="250" width="200" height="110" rx="8" fill="#EEF0EC" stroke="#9AA3AC"/>
-        <text x="110" y="345" font-size="12" fill="#56616D">침대</text>
-        <g id="userPin"><circle cx="190" cy="290" r="16" fill="#1F5FBF"/><text x="190" y="295" font-size="13" text-anchor="middle" fill="#fff" font-weight="700">나</text></g>
-        <g id="chairPin"><rect x="215" y="200" width="44" height="34" rx="6" fill="#fff" stroke="#16202B" stroke-width="2"/><text x="237" y="222" font-size="11" text-anchor="middle" font-weight="700">휠체어</text></g>
-        <!-- sink + sensor -->
-        <rect x="500" y="66" width="110" height="40" fill="#EEF0EC" stroke="#9AA3AC"/>
-        <text x="555" y="91" font-size="12" text-anchor="middle" fill="#56616D">싱크대</text>
-        <g id="sinkSensor"><circle cx="555" cy="128" r="11" fill="#1D6B4F"/><text x="555" y="132" font-size="10" text-anchor="middle" fill="#fff" font-weight="700">S</text></g>
-        <text x="538" y="132" font-size="12" text-anchor="end" fill="#1D6B4F" font-weight="700" id="sinkLbl">역류 지점 · 센서</text>
-        <!-- toilet drain -->
-        <circle cx="545" cy="320" r="9" fill="#fff" stroke="#9AA3AC" stroke-width="2"/><text x="545" y="350" font-size="11" text-anchor="middle" fill="#56616D">바닥 배수구</text>
-        <!-- entrance stairs -->
-        <rect x="620" y="150" width="120" height="70" fill="url(#hatch)" stroke="#16202B"/>
-        <text x="680" y="140" font-size="12" text-anchor="middle" fill="#16202B" font-weight="700">현관 계단 5단 ↑ 지상</text>
-        <!-- door swing (opens inward) -->
-        <line x1="620" y1="150" x2="620" y2="220" stroke="#fff" stroke-width="8"/>
-        <path d="M620,150 A70,70 0 0,0 552,190" fill="none" stroke="#B8471A" stroke-width="2" stroke-dasharray="5 4"/>
-        <line x1="620" y1="150" x2="560" y2="186" stroke="#B8471A" stroke-width="4"/>
-        <text x="606" y="212" font-size="12" text-anchor="end" fill="#B8471A" font-weight="700">현관문: 안쪽으로 열림</text>
-        <text x="606" y="228" font-size="11" text-anchor="end" fill="#B8471A">→ 수압이 걸리면 열기 어려움</text>
-        <!-- windows -->
-        <line x1="60" y1="140" x2="60" y2="210" stroke="#1F5FBF" stroke-width="10"/>
-        <text x="40" y="175" font-size="12" text-anchor="middle" fill="#1F5FBF" font-weight="700" transform="rotate(-90 40 175)">창문 A</text>
-        <line x1="130" y1="380" x2="230" y2="380" stroke="#1F5FBF" stroke-width="10"/>
-        <text x="192" y="404" font-size="12" fill="#1F5FBF" font-weight="700">창문 B · 폭 90cm · 방범창 없음</text>
-        <!-- entry route -->
-        <g id="route" opacity="0">
-          <path d="M180,432 L180,392 L185,312" fill="none" stroke="#1F5FBF" stroke-width="4" stroke-dasharray="10 6" marker-end="url(#ar)"/>
-          <rect x="380" y="404" width="230" height="26" rx="13" fill="#1F5FBF"/>
-          <text x="495" y="422" font-size="13" text-anchor="middle" fill="#fff" font-weight="700">추천 진입로: 창문 B → 침대까지 2m</text>
-        </g>
-        <!-- inflow arrows -->
-        <g id="inflowArr" opacity="0">
-          <path d="M543,140 L460,176" stroke="#B8471A" stroke-width="4" marker-end="url(#ao)"/>
-          <path d="M700,226 L640,250" stroke="#B8471A" stroke-width="4" marker-end="url(#ao)"/>
-        </g>
-      </svg>
-    </div>
-    <div class="mapwrap hide" id="vsect">
-      <svg viewBox="0 0 760 440" width="100%" role="img" aria-label="반지하 단면 침수 시뮬레이션">
-        <rect x="0" y="0" width="760" height="440" fill="#FBFBF9"/>
-        <rect x="0" y="0" width="760" height="150" fill="#EEF2F7"/>
-        <text x="24" y="40" font-size="14" font-weight="700" fill="#16202B">지상 (도로)</text>
-        <line x1="0" y1="150" x2="760" y2="150" stroke="#16202B" stroke-width="4"/>
-        <rect x="80" y="150" width="600" height="250" fill="#fff" stroke="#16202B" stroke-width="5"/>
-        <!-- floor at y=400 ; 1cm = 2.5px -->
-        <rect id="waterSect" x="83" y="400" width="594" height="0" fill="var(--water)"/>
-        <!-- stairs -->
-        <path d="M680,150 L640,150 L640,180 L620,180 L620,210 L600,210 L600,240" fill="none" stroke="#16202B" stroke-width="3"/>
-        <text x="700" y="200" font-size="12" fill="#16202B">현관 계단</text>
-        <!-- bed -->
-        <rect x="130" y="340" width="190" height="60" fill="#EEF0EC" stroke="#9AA3AC"/>
-        <text x="225" y="376" font-size="12" text-anchor="middle" fill="#56616D">침대 높이 60cm</text>
-        <!-- wheelchair -->
-        <g>
-          <circle cx="420" cy="370" r="30" fill="none" stroke="#16202B" stroke-width="5"/>
-          <circle cx="480" cy="388" r="12" fill="none" stroke="#16202B" stroke-width="4"/>
-          <rect x="400" y="315" width="80" height="14" fill="#16202B"/>
-          <rect x="470" y="270" width="10" height="55" fill="#16202B"/>
-        </g>
-        <!-- waterline mark: wheel hub ~ 30cm => y=400-75=325 -->
-        <line x1="83" y1="325" x2="677" y2="325" stroke="#B8471A" stroke-width="2" stroke-dasharray="8 6"/>
-        <text x="96" y="318" font-size="13" fill="#B8471A" font-weight="700">WATERLINE · 바퀴가 잠기는 선 (약 30cm)</text>
-        <line x1="83" y1="250" x2="677" y2="250" stroke="#56616D" stroke-width="1" stroke-dasharray="4 6"/>
-        <text x="96" y="244" font-size="12" fill="#56616D">무릎 높이 (약 60cm, 신림동 사례)</text>
-        <text id="sectLbl" x="660" y="430" font-size="14" text-anchor="end" fill="#16202B" font-weight="700">집 안 물 높이 0cm</text>
-      </svg>
-    </div>
-    <div class="legend">
-      <span><i style="background:#1D6B4F"></i>바닥 수위 센서</span>
-      <span><i style="background:#1F5FBF"></i>창문 · 대체 진입로</span>
-      <span><i style="background:#B8471A"></i>물 유입 · 현관문 위험</span>
-      <span><i style="background:rgba(31,95,191,.28)"></i>집 안 물</span>
-    </div>
-    <div class="facts">
-      <div class="fact"><b>출입구 계단 5단</b>혼자서는 탈출 불가</div>
-      <div class="fact"><b>현관문 안쪽 열림</b>수압 시 진입 어려움</div>
-      <div class="fact"><b>역류 지점 2곳</b>싱크대 · 바닥 배수구</div>
-    </div>
-  </div>
-
-  <!-- RIGHT: helper app -->
-  <div data-role="helper" class="panel phelp">
-    <h3>④ 조력자 앱</h3>
-    <p class="sub">동행파트너 · 활동지원사 · 이웃 · 복지관 담당자</p>
-    <div class="phone">
-      <div class="ph-top"><small>조력자 · 김OO (동행파트너, 도보 4분)</small><b id="hTitle">담당 가구 1곳 · 이상 없음</b></div>
-      <div class="ph-body">
-        <div class="alert idle" id="hAlert">현재 담당 가구에 위험 신호가 없습니다.</div>
-        <div id="hEta" class="box hide"><h4>도착 예정</h4><div class="eta" id="etaNum">04:00</div><small style="color:var(--muted)">사용자 워치에 실시간 안내 중</small></div>
-        <div id="hItems" class="box hide"><h4>도착하면 먼저 옮겨주세요 (중요 물품)</h4>
-          <ul class="check"><li>☐ 휠체어 충전기 → 침대 위</li><li>☐ 복용 약 · 처방전 → 가방</li><li>☐ 욕창 방지 쿠션 · 보조기기</li></ul></div>
-        <div id="hEntry" class="box hide"><h4>진입 정보 (탈출 지도)</h4>
-          <ul><li>현관문 <b>안쪽 열림</b> → 수압 시 열기 어려움</li><li><b>창문 B</b>(폭 90cm, 방범창 없음)로 진입</li><li>사용자 위치: <b>방 · 침대</b> (창문 B에서 2m)</li></ul></div>
-        <div id="hBody" class="box hide"><h4>이렇게 도와주세요 (본인 등록)</h4>
-          <ul><li>꼭 <b>2명 이상</b>이 함께 도와주세요</li><li>목과 머리를 받쳐주세요</li><li>체온 조절이 어려워요: 젖은 옷 교체 · 담요</li><li>전동휠체어는 무거워요: 무리하게 들지 마세요</li></ul></div>
-        <div id="hChair" class="box hide"><h4>휠체어 기록</h4>
-          <ul><li>마지막 위치: 방 · 침대 옆 (22:16)</li><li>상태: 바퀴 높이 침수 → 점검 필요</li><li>보조기기 재지급 신청 자료 자동 준비됨</li></ul></div>
-        <div id="hSupport" class="box hide"><h4>이후 지원 연계</h4>
-          <ul><li>휠체어로 갈 수 있는 대피소: 구민체육센터 (경사로 · 장애인 화장실)</li><li>복지관 사례 관리 담당자에게 피해 기록 전달</li><li>긴급지원금 신청 서류 준비</li></ul></div>
-        <div style="display:flex;gap:6px" id="hBtns"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- dashboard -->
-  <div data-role="platform" class="panel dash">
-    <h3>⑤ 지자체 · 복지관 플랫폼</h3>
-    <p class="sub">관할 재해약자 위험 현황 · 자동 출동 관리 · 동행파트너 연계</p>
-    <table class="dtable">
-      <tr><th>가구</th><th>유형</th><th>공간</th><th>위험 단계</th><th>조력자</th><th>상태</th></tr>
-      <tr><td>정민수 (가상)</td><td>사지마비 · 전동휠체어</td><td>반지하 · 계단 5단</td><td id="dLvl">평상시</td><td>동행파트너 김OO</td><td id="dSt">대기</td></tr>
-      <tr><td>가구 B</td><td>하반신 마비 · 수동휠체어</td><td>반지하 · 경사로 없음</td><td id="dLvl2">평상시</td><td>가족</td><td id="dSt2">대기</td></tr>
-      <tr><td>가구 C</td><td>고령 · 보행 보조기</td><td>저지대 1층</td><td id="dLvl3">평상시</td><td>이웃</td><td id="dSt3">대기</td></tr>
-    </table>
-  </div>
-</main>
-<footer>시연용 프로토타입입니다. 인물·주소·수치는 가상의 예시이며, 실제 서비스에서는 공공 예·경보와 센서 데이터를 결합해 위험 단계를 판단합니다.</footer>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-const STEPS=[
- {t:'20:00',ph:'예방',name:'평상시',lvl:0,
-  n:'평상시. 지자체 반지하 조사 때 스캔한 탈출 지도와 본인이 등록한 "이렇게 도와주세요" 안내가 플랫폼에 저장되어 있습니다. 워치는 일상 안부를 확인합니다.',
-  w:{lvl:'평상시',msg:'오늘 하루 괜찮으셨어요?',hint:'"괜찮아" 라고 말하면 안부가 전달돼요'},water:0},
- {t:'20:10',ph:'예방',name:'주의 · 호우 예보',lvl:1,
-  n:'호우 예보 + 우리 집이 반지하. 워치가 진동과 음성으로 "주의"를 알리고, 지정 조력자에게는 대기 알림이 갑니다.',
-  w:{lvl:'주의',msg:'오늘 밤 많은 비가 예보됐어요. 휠체어를 충전해 두세요.',hint:'조력자에게 대기 알림을 보냈어요'},water:0},
- {t:'21:40',ph:'예방',name:'대피 준비 · 침수 예보',lvl:2,
-  n:'침수 예보 발령. 활동지원사가 퇴근한 뒤라 혼자입니다. 워치가 "도움을 부를까요?"라고 묻고, 사용자가 동의하면 조력자가 출동합니다. 중요 물품 옮기기도 함께 요청합니다.',
-  w:{lvl:'대피 준비',msg:'침수 예보가 내려졌어요. 도움을 부를까요?',hint:'"네" 또는 "괜찮아"라고 말해도 돼요',ask:true},water:0},
- {t:'22:05',ph:'구조',name:'지금 대피 · 물 감지',lvl:3,
-  n:'싱크대 하수관에서 물이 역류합니다. 바닥 센서가 감지하는 즉시, 사용자의 응답이 없어도 조력자·동행파트너·119에 위치·탈출 지도·몸 정보가 자동 전달됩니다.',
-  w:{lvl:'지금 대피',msg:'물이 들어오고 있어요. 도움이 오고 있어요.',hint:'버튼을 누르지 않아도 연결돼요'},water:12},
- {t:'22:13',ph:'구조',name:'구조 · 진입과 이송',lvl:4,
-  n:'조력자는 도착 전에 이미 "현관문은 안쪽 열림, 창문 B로 진입"을 알고 있습니다. "이렇게 도와주세요" 안내대로 2명이 함께 이동을 돕고, 휠체어 센서는 휠체어의 마지막 위치와 상태를 기록합니다.',
-  w:{lvl:'구조 중',msg:'조력자가 도착했어요. 휠체어 위치는 기록해 두었어요.',hint:'이동 중에도 안내가 이어져요'},water:30},
- {t:'22:40',ph:'지원',name:'지원 · 이후 연결',lvl:5,
-  n:'휠체어로 갈 수 있는 대피소로 안내하고, 휠체어 침수 기록으로 보조기기 재지급·긴급지원금 신청을 준비합니다. 복지관 사례 관리로 이어집니다.',
-  w:{lvl:'지원',msg:'구민체육센터로 이동 중이에요. 휠체어 점검을 신청했어요.',hint:'복지관 담당자에게 기록을 전달했어요'},water:30}
-];
-let cur=0, called=false, etaT=null, etaS=0;
-const $=id=>document.getElementById(id);
+(()=>{
+const D2R=Math.PI/180;
+const canvas=document.getElementById('gl'), stage=document.getElementById('stage');
 
-function renderStepper(){
-  $('stepper').innerHTML=STEPS.map((s,i)=>`<button class="step ${i===cur?'on':''}" data-i="${i}"><span class="ph">${s.ph}</span><small>${s.t}</small><b>${s.name}</b></button>`).join('');
-  document.querySelectorAll('.step').forEach(b=>b.onclick=()=>go(+b.dataset.i));
-}
-function setWater(cm){
-  $('water').value=cm;
-  $('sFloor').textContent=cm+' cm';
-  const chair = cur>=4 ? cm : cm;
-  $('sChair').textContent=chair+' cm';
-  $('bFloor').className='badge'+(cm>0?' warn':'');
-  $('bFloor').textContent=cm>0?'물 감지':'정상';
-  $('bChair').className='badge'+(cm>=30?' warn':'');
-  $('bChair').textContent= cur>=4 ? '분리 · 위치 기록' : (cm>=30?'바퀴 침수':'탑승 중');
-  $('waterPlan').setAttribute('opacity', cm>0? Math.min(1, .35+cm/60):0);
-  const h=cm*2.5; const r=$('waterSect'); r.setAttribute('y',400-h); r.setAttribute('height',h);
-  $('sectLbl').textContent='집 안 물 높이 '+cm+'cm'+(cm>=30?' · 바퀴 잠김':'');
-  $('inflowArr').setAttribute('opacity', cm>0?1:0);
-  $('sinkSensor').querySelector('circle').setAttribute('fill', cm>0?'#B8471A':'#1D6B4F');
-}
-function show(id,on){$(id).classList.toggle('hide',!on)}
-function startEta(sec){
-  clearInterval(etaT); etaS=sec; tick();
-  etaT=setInterval(()=>{etaS=Math.max(0,etaS-1);tick();},1000);
-  function tick(){const m=String(Math.floor(etaS/60)).padStart(2,'0'),s=String(etaS%60).padStart(2,'0');$('etaNum').textContent=m+':'+s;}
-}
-function helper(){
-  const s=cur; const a=$('hAlert');
-  ['hEta','hItems','hEntry','hBody','hChair','hSupport'].forEach(x=>show(x,false));
-  $('hBtns').innerHTML='';
-  if(s===0){$('hTitle').textContent='담당 가구 1곳 · 이상 없음';a.className='alert idle';a.textContent='현재 담당 가구에 위험 신호가 없습니다.';}
-  if(s===1){$('hTitle').textContent='대기 알림';a.className='alert amb';a.textContent='[주의] 정민수 님 댁 · 오늘 밤 호우 예보 · 출동 대기 부탁드려요';}
-  if(s===2){
-    $('hTitle').textContent= called?'출동 요청 (사용자 동의)':'대피 준비 · 사용자 응답 대기';
-    a.className= called?'alert blue':'alert amb';
-    a.textContent= called?'[대피 준비] 정민수 님이 도움을 요청했어요. 지금 출발해 주세요.':'[대피 준비] 침수 예보 발령 · 사용자에게 도움 요청 여부를 묻고 있어요.';
-    if(called){show('hItems',true);show('hEntry',true);}
+/* ---------- renderer ---------- */
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.05;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(26,1,1,3000);
+
+/* ---------- studio environment (softboxes baked into a reflection map) ---------- */
+(function(){
+  const env=new THREE.Scene();
+  const room=new THREE.Mesh(new THREE.BoxGeometry(200,120,200),new THREE.MeshBasicMaterial({color:new THREE.Color(.06,.063,.066),side:THREE.BackSide}));
+  room.position.y=40; env.add(room);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshBasicMaterial({color:new THREE.Color(.12,.12,.115)}));
+  floor.rotation.x=-Math.PI/2; floor.position.y=-19.5; env.add(floor);
+  function panel(w,h,pos,k){
+    const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(k,k,k*1.02),side:THREE.DoubleSide}));
+    m.position.set(...pos); m.lookAt(0,10,0); env.add(m);
   }
-  if(s===3){$('hTitle').textContent='자동 출동 요청';a.className='alert org';a.textContent='[지금 대피] 바닥 센서 물 감지 (싱크대 역류) · 응답 없어도 자동 요청 · 119 동시 전달';show('hEta',true);show('hItems',true);show('hEntry',true);show('hBody',true);if(!etaT)startEta(240);}
-  if(s===4){$('hTitle').textContent='현장 도착 · 이송';a.className='alert blue';a.textContent='도착 완료 · 창문 B로 진입 · 2인 이송';show('hEntry',true);show('hBody',true);show('hChair',true);}
-  if(s===5){$('hTitle').textContent='이후 지원';a.className='alert grn';a.textContent='이송 완료 · 대피소 안내 및 지원 연계';show('hChair',true);show('hSupport',true);}
-  if(s!==3){clearInterval(etaT);etaT=null;}
+  panel(110,80,[0,98,10],1.5);        // top softbox
+  panel(50,90,[-95,40,50],1.2);       // key strip, front-left
+  panel(26,100,[95,45,-30],1.5);      // rim strip, back-right
+  panel(70,40,[30,30,98],.25);      // low front fill
+  panel(60,14,[-40,70,-98],.9);      // back kicker
+  const pm=new THREE.PMREMGenerator(renderer);
+  scene.environment=pm.fromScene(env,.03).texture;
+  pm.dispose();
+})();
+
+const key=new THREE.DirectionalLight(0xffffff,.85);
+key.position.set(-60,190,80); key.castShadow=true;
+key.shadow.mapSize.set(2048,2048);
+Object.assign(key.shadow.camera,{left:-75,right:75,top:75,bottom:-75,near:10,far:400});
+key.shadow.bias=-.0006; key.shadow.normalBias=.06; key.shadow.radius=6;
+scene.add(key);
+scene.add(new THREE.HemisphereLight(0xffffff,0xb8b8b0,.18));
+
+/* ---------- procedural textures ---------- */
+function noiseTex(size,fn,rep){
+  const c=document.createElement('canvas'); c.width=c.height=size;
+  const x=c.getContext('2d'), im=x.createImageData(size,size);
+  for(let i=0;i<size*size;i++){const v=fn(i%size,(i/size)|0);im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=v;im.data[i*4+3]=255;}
+  x.putImageData(im,0,0);
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(rep,rep); t.anisotropy=8; return t;
 }
-function watch(){
-  const w=STEPS[cur].w; const f=$('face');
-  f.className='face l'+cur; $('wlvl').textContent=w.lvl; $('wmsg').textContent=w.msg; $('whint').textContent=w.hint;
-  $('wbtns').innerHTML='';
-  if(w.ask && !called){
-    $('wbtns').innerHTML='<button id="yes" style="background:#7FB0F5;color:#0F2340">네, 불러주세요</button><button id="no" style="background:#3B4652;color:#EEF2F5">괜찮아요</button>';
-    $('yes').onclick=()=>{called=true;$('voice').textContent='🎙 사용자: "네" → 조력자 출동 요청 완료';render();};
-    $('no').onclick=()=>{$('voice').textContent='🎙 사용자: "괜찮아" → 물이 감지되면 자동으로 연결해요';};
-  } else if(w.ask && called){ $('wmsg').textContent='조력자 김OO님이 오고 있어요. 충전기와 약을 옮겨드릴 거예요.'; }
-  f.classList.remove('vib'); void f.offsetWidth; if(cur>0) f.classList.add('vib');
-}
-function dash(){
-  const L=['평상시','주의','대피 준비','지금 대피','구조 중','지원'];
-  $('dLvl').innerHTML= cur===0?'평상시':`<span class="badge ${cur>=3&&cur<5?'warn':cur===5?'':'amb'}">${L[cur]}</span>`;
-  $('dSt').textContent=['대기','대기 알림 발송','사용자 응답 대기'+(called?' → 출동 중':''),'자동 출동 · 119 전달','이송 중','대피소 · 사례 관리'][cur];
-  const other = cur>=1 && cur<=3;
-  $('dLvl2').innerHTML= other?`<span class="badge amb">${cur>=2?'대피 준비':'주의'}</span>`:'평상시';
-  $('dSt2').textContent= other?'가족 연락 완료':'대기';
-  $('dLvl3').innerHTML= other?'<span class="badge amb">주의</span>':'평상시';
-  $('dSt3').textContent= other?'안부 확인 완료':'대기';
-}
-function route(){ $('route').setAttribute('opacity', (cur>=3 || (cur===2&&called))?1:0);
-  const chair=$('chairPin'); chair.setAttribute('opacity',1);
-  $('userPin').setAttribute('opacity', cur>=5?0.25:1);
-}
-function render(){
-  renderStepper();
-  const s=STEPS[cur];
-  $('ntag').textContent=s.ph+' · '+s.t; $('ntext').textContent=s.n;
-  setWater(s.water); watch(); helper(); dash(); route();
-  $('prev').disabled=cur===0; $('next').textContent=cur===STEPS.length-1?'처음으로':'다음 단계';
-}
-/* ── 워치 알림음 ──────────────────────────────────────────
-   공포감을 주지 않도록: 사이렌·고음·불협화음 없이
-   부드러운 사인파 차임(벨 소리)만 사용하고, 볼륨을 낮게,
-   소리의 시작과 끝을 둥글게 처리한다. 단계가 올라갈수록
-   '반복 횟수와 속도'로만 중요도를 구분한다.          */
-let actx=null, muted=false;
-const NOTE={G3:196,C4:261.63,E4:329.63,G4:392,A4:440,C5:523.25,D5:587.33,E5:659.25,G5:783.99};
-const TONES={
-  0:null,
-  1:{label:'🔔 알림음: 낮은 차임 1번 (가볍게 알림)', vol:.13,
-     seq:[['E4',0,1.2],['G4',.35,1.4]]},
-  2:{label:'🔔 알림음: 올라가는 차임 2번 (준비하세요)', vol:.15,
-     seq:[['C4',0,.9],['E4',.22,.9],['G4',.44,1.2],
-          ['C4',1.5,.9],['E4',1.72,.9],['G4',1.94,1.4]]},
-  3:{label:'🔔 알림음: 또렷한 차임 3번 반복 (지금 움직이세요)', vol:.17,
-     seq:[0,1.1,2.2].flatMap(t=>[['G4',t,.7],['C5',t+.18,.9]])},
-  4:{label:'🔔 알림음: 내려가는 따뜻한 차임 (도움이 왔어요)', vol:.13,
-     seq:[['G4',0,1.2],['E4',.4,1.3],['C4',.8,1.8]]},
-  5:{label:'🔔 알림음: 잔잔한 화음 (안전해요)', vol:.11,
-     seq:[['C4',0,2.4],['E4',.15,2.3],['G4',.3,2.2],['C5',.45,2.4]]}
+const grainTex=noiseTex(256,()=>110+Math.random()*90,2.2);          // VDI-style fine mould texture
+const softTex=noiseTex(128,()=>120+Math.random()*50,1.2);           // rubber / silicone
+const brushTex=(()=>{const row=[];return noiseTex(256,(x,y)=>{if(row[y]===undefined)row[y]=120+Math.random()*110;return row[y]*.75+Math.random()*50;},1);})();
+const weaveTex=noiseTex(64,(x,y)=>((x>>2)+(y>>2))%2?170:120,6);
+
+/* ---------- materials ---------- */
+const S=o=>new THREE.MeshStandardMaterial(o), P=o=>new THREE.MeshPhysicalMaterial(o);
+const MAT={
+  housing:S({color:0x2a2f35,roughness:.82,metalness:0,bumpMap:grainTex,bumpScale:.012}),
+  housingSmooth:S({color:0x23272c,roughness:.5}),
+  panel:P({color:0x14171b,roughness:.38,clearcoat:.5,clearcoatRoughness:.3}),
+  bumper:S({color:0x1c62c9,roughness:.72,bumpMap:softTex,bumpScale:.006}),
+  silicone:S({color:0x3a4047,roughness:.93,bumpMap:softTex,bumpScale:.004}),
+  rubber:S({color:0x15181c,roughness:.9,bumpMap:softTex,bumpScale:.006}),
+  cable:S({color:0x121417,roughness:.62}),
+  steel:S({color:0xd9dde0,roughness:.3,metalness:1,roughnessMap:brushTex,envMapIntensity:1.1}),
+  alu:S({color:0xc6cace,roughness:.42,metalness:1,roughnessMap:brushTex,envMapIntensity:.9}),
+  nickel:S({color:0xb9bdc2,roughness:.22,metalness:1}),
+  probe:P({color:0xf4f5f5,roughness:.42,clearcoat:.35,clearcoatRoughness:.35}),
+  mark:S({color:0x7d8791,roughness:.7}),
+  padBase:S({color:0xdfe5ec,roughness:.88,bumpMap:weaveTex,bumpScale:.01}),
+  padCell:S({color:0x3478dc,roughness:.6,bumpMap:softTex,bumpScale:.004}),
+  led:S({color:0x0c2a1c,roughness:.55,emissive:0x12e07f,emissiveIntensity:1}),
+  dot:S({color:0x08090a,roughness:.9})
 };
-function chime(freq,start,dur,vol){
-  const t=actx.currentTime+start;
-  const out=actx.createGain();
-  out.gain.setValueAtTime(0,t);
-  out.gain.linearRampToValueAtTime(vol,t+.04);           // 부드러운 시작
-  out.gain.exponentialRampToValueAtTime(.0001,t+dur);    // 자연스럽게 사라짐
-  const lp=actx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=1800;
-  out.connect(lp).connect(actx.destination);
-  // 기음 + 약한 배음 → 종소리처럼 둥근 음색
-  [[1,1],[2,.18],[3,.05]].forEach(([m,g])=>{
-    const o=actx.createOscillator(), og=actx.createGain();
-    o.type='sine'; o.frequency.value=freq*m; og.gain.value=g;
-    o.connect(og).connect(out); o.start(t); o.stop(t+dur+.05);
+const PARTS={main:[],probe:[],clamp:[],cable:[],pad:[]};
+
+/* ---------- geometry helpers ---------- */
+function creased(g,deg=28){
+  g=g.index?g.toNonIndexed():g;
+  const p=g.attributes.position, n=p.count/3, fn=[], cos=Math.cos(deg*D2R), map=new Map();
+  const a=new THREE.Vector3(),b=new THREE.Vector3(),c=new THREE.Vector3();
+  const keyOf=i=>Math.round(p.getX(i)*2e3)+'_'+Math.round(p.getY(i)*2e3)+'_'+Math.round(p.getZ(i)*2e3);
+  for(let f=0;f<n;f++){
+    a.fromBufferAttribute(p,f*3);b.fromBufferAttribute(p,f*3+1);c.fromBufferAttribute(p,f*3+2);
+    fn.push(b.sub(a).cross(c.sub(a)).clone());          // area-weighted
+    for(let k=0;k<3;k++){const kk=keyOf(f*3+k);(map.get(kk)||map.set(kk,[]).get(kk)).push(f);}
+  }
+  const un=fn.map(v=>v.clone().normalize()), out=new Float32Array(p.count*3), acc=new THREE.Vector3();
+  for(let f=0;f<n;f++)for(let k=0;k<3;k++){
+    const i=f*3+k; acc.set(0,0,0);
+    if(Math.abs(un[f].z)>.9995) acc.copy(un[f]);        // keep cap faces dead flat
+    else{ map.get(keyOf(i)).forEach(o=>{if(un[o].dot(un[f])>=cos&&Math.abs(un[o].z)<=.9995)acc.add(fn[o]);}); acc.normalize(); }
+    out[i*3]=acc.x;out[i*3+1]=acc.y;out[i*3+2]=acc.z;
+  }
+  g.setAttribute('normal',new THREE.BufferAttribute(out,3)); return g;
+}
+function rrShape(w,h,r){
+  r=Math.max(.001,Math.min(r,w/2-.001,h/2-.001));
+  const s=new THREE.Shape(),x=w/2,y=h/2;
+  s.moveTo(-x+r,-y);s.lineTo(x-r,-y);s.absarc(x-r,-y+r,r,-Math.PI/2,0,false);
+  s.lineTo(x,y-r);s.absarc(x-r,y-r,r,0,Math.PI/2,false);
+  s.lineTo(-x+r,y);s.absarc(-x+r,y-r,r,Math.PI/2,Math.PI,false);
+  s.lineTo(-x,-y+r);s.absarc(-x+r,-y+r,r,Math.PI,Math.PI*1.5,false);
+  return s;
+}
+/* rounded box: w×h outline (corner radius r) extruded along z by d, edge fillet b */
+function rbox(w,h,d,r,b){
+  b=Math.min(b,d/2-.001,w/2-.001,h/2-.001);
+  const g=new THREE.ExtrudeGeometry(rrShape(w-2*b,h-2*b,Math.max(r-b,.001)),{depth:d-2*b,bevelEnabled:true,bevelThickness:b,bevelSize:b,bevelSegments:5,curveSegments:14});
+  g.center(); return creased(g);
+}
+function mesh(geo,mat,parent,pos,rot,part){
+  const m=new THREE.Mesh(geo,mat); m.castShadow=m.receiveShadow=true;
+  if(pos)m.position.set(...pos); if(rot)m.rotation.set(...rot);
+  parent.add(m); if(part)PARTS[part].push(m); return m;
+}
+const cyl=(r1,r2,h,seg=40,open=false)=>new THREE.CylinderGeometry(r1,r2,h,seg,1,open);
+function lathe(pts,seg=48){return new THREE.LatheGeometry(pts.map(p=>new THREE.Vector2(p[0],p[1])),seg);}
+/* worm-drive band clamp around a tube whose axis is local Y */
+function bandClamp(parent,pos,R,rot,part='clamp'){
+  const g=new THREE.Group(); g.position.set(...pos); if(rot)g.rotation.set(...rot); parent.add(g);
+  const band=new THREE.Mesh(cyl(R,R,.8,56,true),MAT.steel.clone()); band.material.side=THREE.DoubleSide;
+  band.castShadow=true; g.add(band); PARTS[part].push(band);
+  // perforation slots
+  for(let i=0;i<9;i++){const a=Math.PI+(-.55+i*.1375);mesh(new THREE.BoxGeometry(.07,.42,.03),MAT.dot,g,[Math.sin(a)*(R+.005),0,Math.cos(a)*(R+.005)],[0,a,0]);}
+  mesh(rbox(1.25,.95,.75,.15,.08),MAT.steel,g,[0,0,-R-.3],null,part);                  // screw housing
+  mesh(cyl(.2,.2,1.7,20),MAT.nickel,g,[.1,0,-R-.36],[0,0,Math.PI/2],part);             // worm screw
+  mesh(cyl(.36,.36,.3,6),MAT.nickel,g,[1,0,-R-.36],[0,0,Math.PI/2],part);              // hex head
+  return g;
+}
+/* M12 cable gland with flex strain relief, cable exits along -Y */
+function gland(parent,pos,rot,part){
+  const g=new THREE.Group(); g.position.set(...pos); if(rot)g.rotation.set(...rot); parent.add(g);
+  mesh(cyl(.78,.78,.34,6),MAT.nickel,g,[0,-.17,0],null,part);
+  mesh(cyl(.6,.6,.22,32),MAT.nickel,g,[0,-.45,0],null,part);
+  const nut=mesh(cyl(.56,.72,.52,6),MAT.rubber,g,[0,-.82,0],null,part);
+  const prof=[[0,-1.08]]; for(let i=0;i<5;i++){const y=-1.08-i*.26,r=.5-i*.035;prof.push([r,y],[r,y-.15],[r-.07,y-.17],[r-.07,y-.26]);}
+  prof.push([.3,-2.4],[0,-2.4]);
+  mesh(lathe(prof.reverse()),MAT.rubber,g,null,null,part);
+  return g;
+}
+
+/* ---------- product ---------- */
+const product=new THREE.Group(); scene.add(product);
+const SENS=[5,10,20,30], PROBE_BOTTOM=2, PROBE_LEN=42, sensors=[], anchors=[];
+function anchor(parent,pos,key,text,sub){const o=new THREE.Object3D();o.position.set(...pos);parent.add(o);anchors.push({o,key,text,sub});}
+
+/* --- water probe --- */
+(function(){
+  const g=new THREE.Group(); g.position.set(-13,PROBE_BOTTOM,4); product.add(g);
+  mesh(rbox(2.8,PROBE_LEN,1.5,.55,.16),MAT.probe,g,[0,PROBE_LEN/2,0],null,'probe');
+  mesh(rbox(.9,PROBE_LEN-6,.04,.2,.015),MAT.housingSmooth,g,[0,PROBE_LEN/2,-.75],null,'probe');   // potting seam, back
+  // sensing windows (capacitive electrodes sit behind the wall)
+  SENS.forEach(h=>{
+    const y=h-PROBE_BOTTOM;
+    mesh(rbox(2.24,2.74,.05,.36,.02),MAT.mark,g,[0,y,.735],null,'probe');
+    const m=S({color:0xb4bcc4,roughness:.5,metalness:.15,emissive:0x000000});
+    mesh(rbox(2.06,2.56,.06,.3,.025),m,g,[0,y,.745],null,'probe');
+    mesh(new THREE.BoxGeometry(.5,.045,.02),MAT.mark,g,[1.02,y,.752]);          // level tick
+    sensors.push({m,h});
   });
+  for(let y=4;y<=38;y+=2) if(!SENS.includes(y+PROBE_BOTTOM)) mesh(new THREE.BoxGeometry(y%10===8?.34:.2,.035,.02),MAT.mark,g,[1.15,y,.752]);
+  // overmoulded top cap + strain relief
+  mesh(rbox(3.16,3.2,1.86,.62,.2),MAT.housing,g,[0,PROBE_LEN+.5,0],null,'probe');
+  mesh(new THREE.BoxGeometry(3.17,.05,1.87),MAT.dot,g,[0,PROBE_LEN-.55,0]);
+  gland(g,[0,PROBE_LEN+2.1,0],[Math.PI,0,0],'probe');
+  // TPU foot
+  mesh(rbox(3.16,1.8,1.86,.6,.24),MAT.rubber,g,[0,.3,0],null,'probe');
+  // frame stub + clamps
+  mesh(cyl(1.2,1.2,36,48),MAT.alu,g,[0,23,-2.6]);
+  [43,3].forEach(y=>mesh(cyl(1.08,1.08,.5,32),MAT.rubber,g,[0,y-2+(y>20?.2:-.2),-2.6]));
+  [8,22,36].forEach(y=>{
+    mesh(rbox(2.5,2.3,1.1,.3,.12),MAT.silicone,g,[0,y,-1.2],null,'clamp');    // silicone saddle
+    bandClamp(g,[0,y,-2.6],1.25);
+  });
+  anchor(g,[1.4,PROBE_LEN*.6,.8],'probe','물 감지 막대','42 cm · 정전용량 센서 4칸');
+  anchor(g,[1.3,36,-2.6],'clamp','밴드 클램프','스테인리스 + 실리콘 패드');
+})();
+
+/* --- main unit 9 × 6 × 3 cm --- */
+let ledMat, glow;
+(function(){
+  const g=new THREE.Group(); g.position.set(14,32,4); product.add(g);
+  mesh(rbox(9,6,3,1.15,.42),MAT.housing,g,null,null,'main');
+  mesh(rbox(9.3,6.3,1.15,1.3,.3),MAT.bumper,g,null,null,'main');                 // TPU bumper band around the edge
+  [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy])=>mesh(rbox(1.5,1.5,1.5,.7,.3),MAT.bumper,g,[sx*3.98,sy*2.48,0],null,'main')); // corner guards
+  mesh(rbox(7.5,4.5,.08,.75,.03),MAT.panel,g,[0,0,1.49],null,'main');            // inset front panel
+  // SOS button
+  mesh(new THREE.TorusGeometry(1.27,.09,14,64),MAT.housingSmooth,g,[-2.35,.25,1.53],null,'main');
+  const dome=mesh(new THREE.SphereGeometry(1.14,48,24,0,Math.PI*2,0,Math.PI/2),MAT.silicone,g,[-2.35,.25,1.5],[Math.PI/2,0,0],'main');
+  dome.scale.set(1,.3,1);
+  mesh(new THREE.TorusGeometry(.6,.035,8,48),MAT.housingSmooth,g,[-2.35,.25,1.79]); // tactile ring
+  // status LED behind frosted window
+  mesh(new THREE.TorusGeometry(.5,.06,10,40),MAT.housingSmooth,g,[2.75,1.25,1.53]);
+  ledMat=MAT.led; mesh(cyl(.46,.46,.08,32),ledMat,g,[2.75,1.25,1.52],[Math.PI/2,0,0]);
+  const gc=document.createElement('canvas'); gc.width=gc.height=128; const gx=gc.getContext('2d');
+  const gr=gx.createRadialGradient(64,64,0,64,64,64); gr.addColorStop(0,'rgba(60,255,170,.85)'); gr.addColorStop(.25,'rgba(40,255,160,.3)'); gr.addColorStop(1,'rgba(40,255,160,0)');
+  gx.fillStyle=gr; gx.fillRect(0,0,128,128);
+  glow=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(gc),blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));
+  glow.scale.set(2.1,2.1,1); glow.position.set(2.75,1.25,1.62); g.add(glow);
+  // buzzer port
+  for(let i=0;i<4;i++)for(let j=0;j<3;j++) mesh(cyl(.075,.075,.03,10),MAT.dot,g,[1.9+i*.34,-1.35+j*.34,1.535],[Math.PI/2,0,0]);
+  // rear mount: bracket + saddle + frame stub + bands
+  mesh(rbox(4.6,3.6,.7,.5,.14),MAT.housingSmooth,g,[0,0,-1.8],null,'main');
+  mesh(rbox(4.2,2.5,1.2,.3,.12),MAT.silicone,g,[0,0,-2.5],null,'clamp');
+  mesh(cyl(1.05,1.05,17,48),MAT.alu,g,[0,0,-3.5],[0,0,Math.PI/2]);
+  [-8.6,8.6].forEach(x=>mesh(cyl(.95,.95,.4,32),MAT.rubber,g,[x,0,-3.5],[0,0,Math.PI/2]));
+  [-1.35,1.35].forEach(x=>bandClamp(g,[x,0,-3.5],1.1,[Math.PI,0,Math.PI/2]));
+  mesh(cyl(.32,.32,.05,24),MAT.padBase,g,[2.9,-1.7,-1.5],[Math.PI/2,0,0]);          // pressure vent membrane
+  gland(g,[0,-3,0],null,'cable');
+  anchor(g,[4.7,.6,.4],'main','본체 · 통신/배터리','9 × 6 × 3 cm · IP68');
+})();
+
+/* --- cable (drip loop into the bottom gland) --- */
+(function(){
+  const pts=[[-13,48.4,4],[-13,50.6,4],[-11.2,53.4,4.3],[-4,54.2,5],[3,49.5,5.6],[6.8,40,5.8],[7.4,31,5.4],[8.2,25.6,4.8],[11,23.2,4.2],[13.6,24.2,4],[14,25.6,4],[14,27.4,4]];
+  const curve=new THREE.CatmullRomCurve3(pts.map(p=>new THREE.Vector3(...p)),false,'centripetal');
+  mesh(new THREE.TubeGeometry(curve,260,.3,18,false),MAT.cable,product,null,null,'cable');
+  anchor(product,curve.getPoint(.4).toArray(),'cable','방수 케이블','PUR 피복 · 드립 루프');
+})();
+
+/* --- seat pressure pad --- */
+(function(){
+  const g=new THREE.Group(); g.position.set(0,.3,-28); g.rotation.x=-Math.PI/2; product.add(g);
+  const w=32,d=28;
+  mesh(rbox(w,d,.5,1.6,.2),MAT.padBase,g,null,null,'pad');
+  for(let i=-1;i<=1;i++)for(let j=-1;j<=1;j++) mesh(rbox(w/3-2,d/3-2,.12,.7,.05),MAT.padCell,g,[i*(w/3-.5),j*(d/3-.5),.27],null,'pad');
+  mesh(rbox(3,5.5,.3,.5,.1),MAT.padBase,g,[w/2-4,-d/2-2,-.08],null,'pad');             // flex tail
+  mesh(rbox(3.3,1.6,.7,.3,.14),MAT.housing,g,[w/2-4,-d/2-5,.1],null,'pad');            // tail connector
+  anchor(g,[w/2-3,-d/2+3,.4],'pad','착석 감지 패드','두께 5 mm · 압력 9셀');
+})();
+
+/* --- shadow catcher + water --- */
+const shadowMat=new THREE.ShadowMaterial({opacity:.22});
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(700,700),shadowMat); floor.rotation.x=-Math.PI/2; floor.receiveShadow=true; scene.add(floor);
+const waterMat=S({color:0x2a7be0,roughness:.04,metalness:0,transparent:true,opacity:.34,depthWrite:false,envMapIntensity:1.6});
+const water=new THREE.Mesh(cyl(62,62,1,96),waterMat); water.visible=false; water.renderOrder=2; scene.add(water);
+
+/* ---------- state ---------- */
+let theta=35*D2R,phi=14*D2R,zoom=1,auto=true,level=0;
+const HERO={t:[0,25,-4],d:205};
+let tgt=new THREE.Vector3(...HERO.t),dist=HERO.d;
+const cam={theta,phi,dist,t:tgt.clone()};
+const PRESET={hero:[35,14,HERO],front:[0,8,HERO],side:[90,8,HERO],back:[180,8,HERO],main:[28,10,{t:[13.5,31,4],d:52}],probe:[22,6,{t:[-13,17,4],d:95}]};
+const autoB=document.getElementById('auto');
+function setAuto(v){auto=v;autoB.classList.toggle('on',v);}
+autoB.onclick=()=>setAuto(!auto);
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{
+  setAuto(false);const[t,p,o]=PRESET[b.dataset.view];
+  theta=cam.theta+((((t*D2R-cam.theta)%(2*Math.PI))+3*Math.PI)%(2*Math.PI)-Math.PI);
+  phi=p*D2R;tgt.set(...o.t);dist=o.d;zoom=1;});
+
+function applyWater(){
+  sensors.forEach(s=>{const wet=level>=s.h;s.m.color.setHex(wet?0x1f5fbf:0xb4bcc4);s.m.emissive.setHex(wet?0x1f5fbf:0);s.m.emissiveIntensity=wet?.45:0;});
+  water.visible=level>0;water.scale.y=Math.max(level,.01);water.position.y=level/2;
+  document.getElementById('wVal').textContent=level+' cm';
+  const n=SENS.filter(h=>level>=h).length,st=document.getElementById('state');
+  st.className=n?'warn':'';
+  st.textContent=n===0?'정상 · 물 감지 없음':n===1?'물 감지 · 바닥 센서와 교차 확인 중':n<4?`센서 ${n}칸 감지 · "지금 대피" 단계`:'바퀴 높이 이상 침수 · 구조 요청';
+  ledMat.emissive.setHex(n>=2?0xff2a1e:n===1?0xff9a10:0x12e07f);
+  glow.material.color.setHex(n>=2?0xff5a50:n===1?0xffc040:0xffffff);
 }
-function playTone(step){
-  const tone=TONES[step];
-  $('soundLbl').textContent=tone?tone.label:'';
-  if(!tone||muted) return;
-  try{
-    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
-    if(actx.state==='suspended') actx.resume();
-    tone.seq.forEach(([n,st,d])=>chime(NOTE[n],st,d,tone.vol));
-    const l=$('soundLbl'); l.classList.add('play');
-    const end=Math.max(...tone.seq.map(([,st,d])=>st+d))*1000;
-    clearTimeout(playTone._t); playTone._t=setTimeout(()=>l.classList.remove('play'),end);
-  }catch(e){}
+document.getElementById('wl').oninput=e=>{level=+e.target.value;applyWater();};
+
+const labelsEl=document.getElementById('labels');labelsEl.style.display='none';
+const labelEls=anchors.map(a=>{const el=document.createElement('div');el.className='lbl';el.innerHTML=`${a.text}<small>${a.sub}</small>`;labelsEl.appendChild(el);return{...a,el};});
+const lblB=document.getElementById('lblB');
+lblB.onclick=()=>{const on=lblB.classList.toggle('on');labelsEl.style.display=on?'':'none';};
+const bgB=document.getElementById('bgB');
+bgB.onclick=()=>{const on=bgB.classList.toggle('on');document.body.classList.toggle('dark',on);shadowMat.opacity=on?.5:.22;renderer.toneMappingExposure=on?.9:1.05;};
+
+/* orbit */
+const ptrs=new Map();let pinch0=0,zoom0=1;
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});canvas.classList.add('drag');setAuto(false);
+  if(ptrs.size===2){const[a,b]=[...ptrs.values()];pinch0=Math.hypot(a.x-b.x,a.y-b.y);zoom0=zoom;}});
+canvas.addEventListener('pointermove',e=>{
+  if(!ptrs.has(e.pointerId))return;
+  const p=ptrs.get(e.pointerId),dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;
+  if(ptrs.size===2){const[a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(pinch0)zoom=Math.min(1.8,Math.max(.3,zoom0*pinch0/d));return;}
+  theta-=dx*.008;phi=Math.min(82*D2R,Math.max(1*D2R,phi+dy*.006));});
+['pointerup','pointercancel'].forEach(ev=>canvas.addEventListener(ev,e=>{ptrs.delete(e.pointerId);if(!ptrs.size)canvas.classList.remove('drag');pinch0=0;}));
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.min(1.8,Math.max(.3,zoom*(1+e.deltaY*.001)));},{passive:false});
+
+let W=1,H=1;
+function resize(){W=stage.clientWidth;H=stage.clientHeight;renderer.setSize(W,H,false);camera.aspect=W/H;camera.updateProjectionMatrix();}
+new ResizeObserver(resize).observe(stage);resize();
+
+const v3=new THREE.Vector3();let last=performance.now();
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(auto)theta+=dt*.3;
+  const k=1-Math.exp(-dt*7);
+  cam.theta+=(theta-cam.theta)*k;cam.phi+=(phi-cam.phi)*k;cam.t.lerp(tgt,k);
+  cam.dist+=(dist*zoom*(W/H<1?1.5:1)-cam.dist)*k;
+  camera.position.set(cam.t.x+cam.dist*Math.cos(cam.phi)*Math.sin(cam.theta),cam.t.y+cam.dist*Math.sin(cam.phi),cam.t.z+cam.dist*Math.cos(cam.phi)*Math.cos(cam.theta));
+  camera.lookAt(cam.t);
+  const pulse=.8+.2*Math.sin(now*.003);
+  ledMat.emissiveIntensity=1.1*pulse;glow.material.opacity=.6*pulse;
+  renderer.render(scene,camera);
+  if(labelsEl.style.display!=='none')labelEls.forEach(l=>{l.o.getWorldPosition(v3).project(camera);l.el.style.opacity=v3.z>=1?0:1;l.el.style.left=((v3.x+1)/2*W)+'px';l.el.style.top=((1-v3.y)/2*H)+'px';});
+  requestAnimationFrame(frame);
 }
-function go(i){ if(i===0){called=false;$('voice').textContent='';} const changed=i!==cur; cur=i; render(); if(changed) playTone(cur); }
-$('next').onclick=()=>go(cur===STEPS.length-1?0:cur+1);
-$('prev').onclick=()=>{if(cur>0)go(cur-1)};
-$('water').oninput=e=>setWater(+e.target.value);
-$('inflow').onclick=()=>go(3);
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x===t));
-  show('vplan',t.dataset.v==='plan'); show('vsect',t.dataset.v==='sect');
-});
-let role=null;
-function applyRole(){
-  const m=document.querySelector('main');
-  m.classList.toggle('focus',!!role);
-  m.querySelectorAll('[data-role]').forEach(el=>el.classList.toggle('lit',!!role&&el.dataset.role.split(' ').includes(role)));
-  document.querySelectorAll('.role').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.role===role)));
-}
-document.querySelectorAll('.role').forEach(b=>b.onclick=()=>{role=role===b.dataset.role?null:b.dataset.role;applyRole();});
-document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')$('next').click(); if(e.key==='ArrowLeft')$('prev').click();});
-$('mute').onclick=()=>{
-  muted=!muted;
-  $('mute').textContent=muted?'🔕 알림음 꺼짐':'🔔 알림음 켜짐';
-  $('mute').setAttribute('aria-pressed',muted);
-  if(muted&&actx) actx.suspend(); else if(actx) actx.resume();
-  if(!muted) playTone(cur);
-};
-render();
+applyWater();
+const q=new URLSearchParams(location.search);
+if(q.get('a')){setAuto(false);theta=cam.theta=+q.get('a')*D2R;}
+if(q.get('v')&&PRESET[q.get('v')]){setAuto(false);const[t,p,o]=PRESET[q.get('v')];theta=cam.theta=t*D2R;phi=cam.phi=p*D2R;tgt.set(...o.t);cam.t.copy(tgt);dist=o.d;cam.dist=dist;}
+if(q.get('lv')){level=+q.get('lv');document.getElementById('wl').value=level;applyWater();}
+requestAnimationFrame(frame);
+})();
 </script>
 </body>
 </html>
